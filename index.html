@@ -3,54 +3,69 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Live Crabbing Dashboard</title>
+<title>Delaware Crabbing Intelligence</title>
 
 <style>
+/* ===== BACKGROUND ===== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #061824;
   color: white;
+  background: url("https://upload.wikimedia.org/wikipedia/commons/3/3c/Indian_River_Inlet_Bridge_Delaware.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* dark overlay for readability */
+.overlay {
+  background: rgba(0,0,0,0.65);
+  min-height: 100vh;
+  padding: 20px;
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1050px;
   margin: auto;
-  padding: 20px;
 }
 
+/* HEADER */
 .header {
+  background: rgba(0, 60, 80, 0.7);
   padding: 20px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0aa, #064);
-  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
 }
 
 .header h1 {
   margin: 0;
 }
 
+/* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 12px;
+  margin-top: 15px;
 }
 
+/* CARDS */
 .card {
-  background: rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
   padding: 15px;
   border-radius: 14px;
   backdrop-filter: blur(10px);
 }
 
+/* TITLES */
 h2 {
   font-size: 12px;
-  opacity: 0.7;
   letter-spacing: 1px;
+  opacity: 0.7;
 }
 
+/* SCORE */
 .big {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: bold;
 }
 
@@ -58,10 +73,17 @@ h2 {
 .mid { color: #facc15; }
 .bad { color: #f87171; }
 
+/* CRAB IMAGE */
+.crab-img {
+  width: 70px;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+/* LISTS */
 ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
 li {
@@ -69,50 +91,72 @@ li {
   opacity: 0.9;
 }
 
+/* BUTTON STYLE INFO TAG */
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* FOOTER */
 footer {
   text-align: center;
-  opacity: 0.5;
   margin-top: 20px;
+  opacity: 0.6;
+  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="overlay">
+
 <div class="container">
 
   <div class="header">
-    <h1>🦀 Live Crabbing Dashboard</h1>
-    <p>NOAA tides + real weather for Delaware waters</p>
+    <h1>🦀 Delaware Crabbing Intelligence</h1>
+    <p>Live NOAA tides + weather + movement-based crab scoring</p>
   </div>
 
   <div class="grid">
 
+    <!-- SCORE -->
     <div class="card">
-      <h2>CRAB SCORE</h2>
+      <h2>TODAY'S CRAB SCORE</h2>
       <div id="score" class="big">--</div>
       <div id="rating">Loading...</div>
+
+      <img class="crab-img" src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Blue_crab_Columbus_Crab.jpg" />
     </div>
 
+    <!-- WEATHER -->
     <div class="card">
-      <h2>WEATHER</h2>
+      <h2>WEATHER (LIVE)</h2>
       <ul id="weather">
-        <li>Loading weather...</li>
+        <li>Loading...</li>
       </ul>
     </div>
 
+    <!-- TEMP -->
     <div class="card">
       <h2>TEMPERATURE</h2>
       <div id="temp" class="big">--</div>
+      <div class="tag">Ocean View, DE</div>
     </div>
 
+    <!-- TIDES -->
     <div class="card">
-      <h2>TIDES (NOAA)</h2>
+      <h2>NOAA TIDES</h2>
       <ul id="tides">
-        <li>Loading tides...</li>
+        <li>Loading tide data...</li>
       </ul>
     </div>
 
+    <!-- WINDOW -->
     <div class="card">
       <h2>CRAB WINDOW</h2>
       <div id="window">Calculating...</div>
@@ -121,28 +165,32 @@ footer {
   </div>
 
   <footer>
-    Powered by Open-Meteo + NOAA CO-OPS
+    Built for Delaware Bay crabbing • NOAA + Open-Meteo data
   </footer>
+
+</div>
 
 </div>
 
 <script>
 
 // =========================
-// LOCATION (Ocean View, DE)
+// LOCATION
 // =========================
 const lat = 38.545;
 const lon = -75.085;
 
-// NOAA station (Lewes, DE – closest reliable tide station)
+// Lewes NOAA station
 const station = "8557380";
 
 // =========================
-// WEATHER (OPEN-METEO)
+// WEATHER (FIXED UNITS)
 // =========================
 async function getWeather() {
   const url =
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code`;
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current=temperature_2m,wind_speed_10m` +
+    `&temperature_unit=fahrenheit&wind_speed_unit=mph`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -161,15 +209,14 @@ async function getWeather() {
 }
 
 // =========================
-// NOAA TIDES
+// TIDES (NOAA)
 // =========================
 async function getTides() {
   const url =
     `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter` +
-    `?product=predictions&application=NOS.COOPS.TAC.WL` +
+    `?product=predictions&station=${station}` +
     `&begin_date=today&end_date=today` +
-    `&datum=MLLW&station=${station}` +
-    `&time_zone=lst_ldt&units=english&format=json`;
+    `&datum=MLLW&time_zone=lst_ldt&units=english&format=json`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -185,8 +232,6 @@ function renderTides(tides) {
   }
 
   let html = "";
-
-  // show next 6 tide predictions
   for (let i = 0; i < Math.min(6, tides.length); i++) {
     html += `<li>🌊 ${tides[i].t}</li>`;
   }
@@ -195,40 +240,58 @@ function renderTides(tides) {
 }
 
 // =========================
-// CRAB SCORE MODEL
+// REAL CRAB SCORE (BASED ON TIDES)
 // =========================
-function calculateScore(temp, wind) {
-  let score = 50;
+function calculateCrabScore(temp, wind, tides) {
 
-  if (temp >= 65 && temp <= 85) score += 20;
-  else score -= 10;
+  let score = 40;
 
+  // temp factor
+  if (temp > 65 && temp < 85) score += 25;
+
+  // wind factor
   if (wind < 10) score += 15;
   else score -= 10;
 
-  // small randomness replaced later by tide strength logic
-  score += Math.random() * 10;
+  // TIDE MOVEMENT FACTOR (REAL LOGIC)
+  if (tides.length > 2) {
+    const now = new Date();
+
+    let movementScore = 0;
+
+    for (let i = 1; i < tides.length; i++) {
+      const t1 = new Date(tides[i-1].t);
+      const t2 = new Date(tides[i].t);
+
+      const diff = Math.abs(t2 - t1) / (1000 * 60); // minutes
+
+      // stronger movement = better crabbing
+      if (diff < 180) movementScore += 10;
+    }
+
+    score += Math.min(25, movementScore);
+  }
 
   score = Math.max(0, Math.min(100, Math.round(score)));
 
-  let rating = "OK";
+  let label = "OK";
   let color = "mid";
 
   if (score >= 70) {
-    rating = "GOOD";
+    label = "GOOD";
     color = "good";
   } else if (score < 40) {
-    rating = "POOR";
+    label = "POOR";
     color = "bad";
   }
 
   document.getElementById("score").innerText = score;
   document.getElementById("rating").innerHTML =
-    `<span class="${color}">${rating}</span>`;
+    `<span class="${color}">${label}</span>`;
 }
 
 // =========================
-// CRAB WINDOW (TIME BASED)
+// CRAB WINDOW
 // =========================
 function crabWindow() {
   const hour = new Date().getHours();
@@ -247,11 +310,11 @@ function crabWindow() {
 // =========================
 async function init() {
   const weather = await getWeather();
-  calculateScore(weather.temp, weather.wind);
-  crabWindow();
-
   const tides = await getTides();
+
   renderTides(tides);
+  calculateCrabScore(weather.temp, weather.wind, tides);
+  crabWindow();
 }
 
 init();
