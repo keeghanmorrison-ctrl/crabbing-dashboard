@@ -1,253 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Delaware Crabbing Intelligence V5</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: system-ui, Arial;
-  color: #e2e8f0;
-
-  background:
-    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.85)),
-    url("https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=2000&q=70");
-
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-/* HEADER */
-header {
-  text-align: center;
-  padding: 26px 12px 8px;
-}
-
-h1 { margin: 0; font-size: 30px; }
-
-.sub { opacity: 0.7; font-size: 13px; }
-
-/* LAYOUT */
-.container {
-  max-width: 1050px;
-  margin: auto;
-  padding: 16px;
-  display: grid;
-  gap: 16px;
-}
-
-/* GLASS CARDS */
-.card {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-.label {
-  font-size: 12px;
-  opacity: 0.7;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.big {
-  font-size: 44px;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  opacity: 0.85;
-}
-
-/* STATUS */
-.status {
-  font-size: 22px;
-  font-weight: 700;
-  margin-top: 8px;
-}
-
-.go { color: #22c55e; }
-.mid { color: #facc15; }
-.no { color: #ef4444; }
-
-/* HERO */
-.hero {
-  height: 240px;
-  border-radius: 16px;
-  background-size: cover;
-  background-position: center;
-}
-
-/* SMALL GRID */
-.grid2 {
-  display: grid;
-  gap: 16px;
-}
-
-@media (min-width: 850px) {
-  .grid2 { grid-template-columns: 1fr 1fr; }
-}
-
-img {
-  width: 100%;
-  border-radius: 12px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>Crabbing Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0a2a43, #0e4d64);
+      color: white;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    h2 { margin-top: 0; }
+  </style>
 </head>
 
 <body>
+  <h1 style="text-align:center;">Crabbing Dashboard</h1>
 
-<header>
-  <h1>🦀 Delaware Crabbing Intelligence</h1>
-  <div class="sub">Indian River Inlet • REAL Weather Engine • Tide-Aware Forecast</div>
-</header>
-
-<div class="container">
-
-  <!-- WEATHER -->
-  <div class="card">
-    <div class="label">Live Conditions</div>
-    <div class="big" id="temp">Loading...</div>
-    <div class="row">
-      <div id="wind">Wind: --</div>
-      <div id="dir">Dir: --</div>
-    </div>
-  </div>
-
-  <!-- CRAB SCORE -->
-  <div class="card">
-    <div class="label">Crabbing Intelligence Score</div>
-    <div class="status" id="alert">Calculating...</div>
-    <div id="reason" style="margin-top:10px; opacity:0.8;"></div>
-  </div>
-
-  <!-- INLET HERO -->
-  <div class="card">
-    <div class="label">Indian River Inlet</div>
-    <div class="hero"></div>
-  </div>
-
-  <!-- CRAB IMAGE -->
-  <div class="grid2">
-
-    <div class="card">
-      <div class="label">Blue Crab</div>
-      <img src="https://images.unsplash.com/photo-1600628422019-6c8d1b2f8b4d?auto=format&fit=crop&w=1400&q=70"/>
+  <div class="container">
+    <div class="card" id="weatherCard">
+      <h2>Weather</h2>
+      <div id="weather"></div>
     </div>
 
-    <div class="card">
-      <div class="label">Conditions Guide</div>
-      <div style="opacity:0.85; line-height:1.5;">
-        ✔ 65–80°F best activity<br>
-        ✔ Light wind < 10 mph ideal<br>
-        ✔ Incoming tide = peak feeding<br>
-        ✔ Dawn / dusk = strongest bite
-      </div>
+    <div class="card" id="tideCard">
+      <h2>Tide Info</h2>
+      <div id="tides"></div>
     </div>
 
+    <div class="card" id="solunarCard">
+      <h2>Solunar Activity</h2>
+      <div id="solunar"></div>
+    </div>
   </div>
-
-</div>
 
 <script>
-
-let hourly = [];
-let weather = null;
-
-/* ================= WEATHER (FIXED RELIABLE VERSION) ================= */
+// ---------------- WEATHER ----------------
 async function loadWeather() {
-  const lat = 38.6109;
-  const lon = -75.0696;
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=38.54&longitude=-75.06&current_weather=true";
+  const data = await fetch(url).then(r => r.json());
+  const w = data.current_weather;
 
-  const url =
-    `https://api.open-meteo.com/v1/forecast`
-    + `?latitude=${lat}`
-    + `&longitude=${lon}`
-    + `&hourly=temperature_2m,wind_speed_10m,wind_direction_10m`
-    + `&temperature_unit=fahrenheit`
-    + `&wind_speed_unit=mph`
-    + `&forecast_days=1`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  hourly = data.hourly;
-
-  const now = new Date();
-  const times = hourly.time;
-
-  // find closest hour index (THIS FIXES YOUR WRONG WEATHER ISSUE)
-  let i = times.findIndex(t => new Date(t) >= now);
-  if (i < 0) i = times.length - 1;
-
-  const temp = hourly.temperature_2m[i];
-  const wind = hourly.wind_speed_10m[i];
-  const dir = hourly.wind_direction_10m[i];
-
-  weather = { temp, wind, dir };
-
-  document.getElementById("temp").innerText =
-    `${Math.round(temp)}°F`;
-
-  document.getElementById("wind").innerText =
-    `Wind: ${Math.round(wind)} mph`;
-
-  document.getElementById("dir").innerText =
-    `Direction: ${Math.round(dir)}°`;
-
-  updateScore();
+  document.getElementById("weather").innerHTML = `
+    Temp: ${w.temperature}°F<br>
+    Wind: ${w.windspeed} mph<br>
+    Conditions: ${w.weathercode}
+  `;
 }
 
-/* ================= BITE MODEL ================= */
-function updateScore() {
-  if (!weather) return;
+// ---------------- TIDES ----------------
+async function loadTides() {
+  const url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=8555889&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json";
+  const data = await fetch(url).then(r => r.json());
 
-  let score = 50;
+  let html = "";
+  data.predictions.forEach(t => {
+    html += `${t.t} — ${t.type} tide at ${t.v} ft<br>`;
+  });
 
-  const { temp, wind } = weather;
-
-  // temp band
-  if (temp >= 65 && temp <= 80) score += 25;
-  else score -= 10;
-
-  // wind
-  if (wind < 8) score += 25;
-  else if (wind < 12) score += 10;
-  else score -= 15;
-
-  let status = "MARGINAL 🟡";
-  let cls = "mid";
-
-  if (score >= 75) {
-    status = "GO 🟢 PRIME CRABBING WINDOW";
-    cls = "go";
-  } else if (score < 45) {
-    status = "NO GO 🔴 POOR CONDITIONS";
-    cls = "no";
-  }
-
-  document.getElementById("alert").innerText = status;
-  document.getElementById("alert").className = "status " + cls;
-
-  document.getElementById("reason").innerText =
-    `Score ${score} • Temp ${temp}°F • Wind ${wind} mph`;
+  document.getElementById("tides").innerHTML = html;
 }
 
-/* ================= INIT ================= */
-loadWeather();
-setInterval(loadWeather, 600000);
+// ---------------- SOLUNAR ----------------
+async function loadSolunar() {
+  const url = "https://api.solunar.org/solunar/38.54,-75.06/today";
+  const data = await fetch(url).then(r => r.json());
 
-</script>
-
-</body>
-</html>
+  document.getElementById("solunar").innerHTML = `
+    Major: ${data.major1.start}–${data.major1.end}<br>
+    Minor: ${data.minor1.start}–${data.minor1.end
