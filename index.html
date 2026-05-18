@@ -21,9 +21,13 @@ body {
 
 .header {
   padding: 20px;
-  background: linear-gradient(135deg, #0aa, #064);
   border-radius: 16px;
+  background: linear-gradient(135deg, #0aa, #064);
   margin-bottom: 15px;
+}
+
+.header h1 {
+  margin: 0;
 }
 
 .grid {
@@ -36,11 +40,13 @@ body {
   background: rgba(255,255,255,0.06);
   padding: 15px;
   border-radius: 14px;
+  backdrop-filter: blur(10px);
 }
 
 h2 {
-  font-size: 14px;
+  font-size: 12px;
   opacity: 0.7;
+  letter-spacing: 1px;
 }
 
 .big {
@@ -52,18 +58,21 @@ h2 {
 .mid { color: #facc15; }
 .bad { color: #f87171; }
 
-ul { padding: 0; list-style: none; }
-li { margin: 5px 0; opacity: 0.9; }
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin: 6px 0;
+  opacity: 0.9;
+}
 
 footer {
   text-align: center;
   opacity: 0.5;
   margin-top: 20px;
-}
-
-/* loader */
-small {
-  opacity: 0.6;
 }
 </style>
 </head>
@@ -74,19 +83,19 @@ small {
 
   <div class="header">
     <h1>🦀 Live Crabbing Dashboard</h1>
-    <p>Real-time NOAA + weather-powered conditions</p>
+    <p>NOAA tides + real weather for Delaware waters</p>
   </div>
 
   <div class="grid">
 
     <div class="card">
-      <h2>TODAY SCORE</h2>
+      <h2>CRAB SCORE</h2>
       <div id="score" class="big">--</div>
       <div id="rating">Loading...</div>
     </div>
 
     <div class="card">
-      <h2>WEATHER (LIVE)</h2>
+      <h2>WEATHER</h2>
       <ul id="weather">
         <li>Loading weather...</li>
       </ul>
@@ -95,7 +104,13 @@ small {
     <div class="card">
       <h2>TEMPERATURE</h2>
       <div id="temp" class="big">--</div>
-      <small>Ocean View, DE</small>
+    </div>
+
+    <div class="card">
+      <h2>TIDES (NOAA)</h2>
+      <ul id="tides">
+        <li>Loading tides...</li>
+      </ul>
     </div>
 
     <div class="card">
@@ -106,19 +121,28 @@ small {
   </div>
 
   <footer>
-    Powered by Open-Meteo (weather) + NOAA logic (tides)
+    Powered by Open-Meteo + NOAA CO-OPS
   </footer>
 
 </div>
 
 <script>
-// ===== YOUR LOCATION (Ocean View, DE area) =====
+
+// =========================
+// LOCATION (Ocean View, DE)
+// =========================
 const lat = 38.545;
 const lon = -75.085;
 
-// ===== FETCH WEATHER =====
+// NOAA station (Lewes, DE – closest reliable tide station)
+const station = "8557380";
+
+// =========================
+// WEATHER (OPEN-METEO)
+// =========================
 async function getWeather() {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code`;
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -136,21 +160,54 @@ async function getWeather() {
   return { temp, wind };
 }
 
-// ===== SIMPLE CRAB SCORE MODEL =====
+// =========================
+// NOAA TIDES
+// =========================
+async function getTides() {
+  const url =
+    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter` +
+    `?product=predictions&application=NOS.COOPS.TAC.WL` +
+    `&begin_date=today&end_date=today` +
+    `&datum=MLLW&station=${station}` +
+    `&time_zone=lst_ldt&units=english&format=json`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  return data.predictions || [];
+}
+
+function renderTides(tides) {
+  if (!tides.length) {
+    document.getElementById("tides").innerHTML =
+      "<li>No tide data available</li>";
+    return;
+  }
+
+  let html = "";
+
+  // show next 6 tide predictions
+  for (let i = 0; i < Math.min(6, tides.length); i++) {
+    html += `<li>🌊 ${tides[i].t}</li>`;
+  }
+
+  document.getElementById("tides").innerHTML = html;
+}
+
+// =========================
+// CRAB SCORE MODEL
+// =========================
 function calculateScore(temp, wind) {
   let score = 50;
 
-  // ideal temp range
   if (temp >= 65 && temp <= 85) score += 20;
   else score -= 10;
 
-  // wind penalty
   if (wind < 10) score += 15;
   else score -= 10;
 
-  // random tide proxy (we'll upgrade this with NOAA next step)
-  const tideFactor = Math.random() * 20;
-  score += tideFactor;
+  // small randomness replaced later by tide strength logic
+  score += Math.random() * 10;
 
   score = Math.max(0, Math.min(100, Math.round(score)));
 
@@ -168,14 +225,15 @@ function calculateScore(temp, wind) {
   document.getElementById("score").innerText = score;
   document.getElementById("rating").innerHTML =
     `<span class="${color}">${rating}</span>`;
-
 }
 
-// ===== CRAB WINDOW LOGIC =====
+// =========================
+// CRAB WINDOW (TIME BASED)
+// =========================
 function crabWindow() {
   const hour = new Date().getHours();
 
-  let msg = "Mid activity";
+  let msg = "Moderate activity";
 
   if (hour >= 5 && hour <= 9) msg = "🔥 Morning bite window";
   if (hour >= 17 && hour <= 21) msg = "🔥 Evening peak window";
@@ -184,14 +242,20 @@ function crabWindow() {
   document.getElementById("window").innerText = msg;
 }
 
-// ===== RUN =====
+// =========================
+// INIT
+// =========================
 async function init() {
-  const { temp, wind } = await getWeather();
-  calculateScore(temp, wind);
+  const weather = await getWeather();
+  calculateScore(weather.temp, weather.wind);
   crabWindow();
+
+  const tides = await getTides();
+  renderTides(tides);
 }
 
 init();
+
 </script>
 
 </body>
