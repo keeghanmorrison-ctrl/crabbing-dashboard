@@ -1,213 +1,198 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
-    span.s1 {font-kerning: none}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Live Crabbing Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #061824;
+  color: white;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.header {
+  padding: 20px;
+  background: linear-gradient(135deg, #0aa, #064);
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: rgba(255,255,255,0.06);
+  padding: 15px;
+  border-radius: 14px;
+}
+
+h2 {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.big {
+  font-size: 2.2rem;
+  font-weight: bold;
+}
+
+.good { color: #4ade80; }
+.mid { color: #facc15; }
+.bad { color: #f87171; }
+
+ul { padding: 0; list-style: none; }
+li { margin: 5px 0; opacity: 0.9; }
+
+footer {
+  text-align: center;
+  opacity: 0.5;
+  margin-top: 20px;
+}
+
+/* loader */
+small {
+  opacity: 0.6;
+}
+</style>
 </head>
+
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta charset="UTF-8" /&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</span></p>
-<p class="p1"><span class="s1">&lt;title&gt;Crab Dashboard&lt;/title&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;style&gt;</span></p>
-<p class="p1"><span class="s1">@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap');</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">body {</span></p>
-<p class="p1"><span class="s1">margin: 0;</span></p>
-<p class="p1"><span class="s1">font-family: Inter, sans-serif;</span></p>
-<p class="p1"><span class="s1">background: radial-gradient(circle at top, #0b2a3a, #050b10);</span></p>
-<p class="p1"><span class="s1">color: white;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Layout */</span></p>
-<p class="p1"><span class="s1">.container {</span></p>
-<p class="p1"><span class="s1">max-width: 1100px;</span></p>
-<p class="p1"><span class="s1">margin: auto;</span></p>
-<p class="p1"><span class="s1">padding: 25px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Header */</span></p>
-<p class="p1"><span class="s1">.header {</span></p>
-<p class="p1"><span class="s1">padding: 30px;</span></p>
-<p class="p1"><span class="s1">border-radius: 20px;</span></p>
-<p class="p1"><span class="s1">background: linear-gradient(135deg, rgba(0,180,255,0.15), rgba(0,255,170,0.08));</span></p>
-<p class="p1"><span class="s1">backdrop-filter: blur(10px);</span></p>
-<p class="p1"><span class="s1">box-shadow: 0 10px 30px rgba(0,0,0,0.4);</span></p>
-<p class="p1"><span class="s1">margin-bottom: 25px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.header h1 {</span></p>
-<p class="p1"><span class="s1">margin: 0;</span></p>
-<p class="p1"><span class="s1">font-size: 2.3rem;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.header p {</span></p>
-<p class="p1"><span class="s1">opacity: 0.7;</span></p>
-<p class="p1"><span class="s1">margin-top: 8px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Grid */</span></p>
-<p class="p1"><span class="s1">.grid {</span></p>
-<p class="p1"><span class="s1">display: grid;</span></p>
-<p class="p1"><span class="s1">grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));</span></p>
-<p class="p1"><span class="s1">gap: 18px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Cards */</span></p>
-<p class="p1"><span class="s1">.card {</span></p>
-<p class="p1"><span class="s1">background: rgba(255,255,255,0.06);</span></p>
-<p class="p1"><span class="s1">border: 1px solid rgba(255,255,255,0.08);</span></p>
-<p class="p1"><span class="s1">border-radius: 18px;</span></p>
-<p class="p1"><span class="s1">padding: 18px;</span></p>
-<p class="p1"><span class="s1">backdrop-filter: blur(12px);</span></p>
-<p class="p1"><span class="s1">box-shadow: 0 8px 20px rgba(0,0,0,0.35);</span></p>
-<p class="p1"><span class="s1">transition: transform 0.2s ease, background 0.2s ease;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.card:hover {</span></p>
-<p class="p1"><span class="s1">transform: translateY(-4px);</span></p>
-<p class="p1"><span class="s1">background: rgba(255,255,255,0.09);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.card h2 {</span></p>
-<p class="p1"><span class="s1">font-size: 1rem;</span></p>
-<p class="p1"><span class="s1">opacity: 0.8;</span></p>
-<p class="p1"><span class="s1">margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1">letter-spacing: 0.5px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Status badge */</span></p>
-<p class="p1"><span class="s1">.badge {</span></p>
-<p class="p1"><span class="s1">display: inline-block;</span></p>
-<p class="p1"><span class="s1">padding: 6px 10px;</span></p>
-<p class="p1"><span class="s1">border-radius: 999px;</span></p>
-<p class="p1"><span class="s1">font-weight: 600;</span></p>
-<p class="p1"><span class="s1">font-size: 0.9rem;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.good { background: rgba(0,255,140,0.15); color: #5dffb0; }</span></p>
-<p class="p1"><span class="s1">.mid { background: rgba(255,200,0,0.15); color: #ffd36a; }</span></p>
-<p class="p1"><span class="s1">.bad { background: rgba(255,80,80,0.15); color: #ff7a7a; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Big score */</span></p>
-<p class="p1"><span class="s1">.score {</span></p>
-<p class="p1"><span class="s1">font-size: 2.4rem;</span></p>
-<p class="p1"><span class="s1">font-weight: 700;</span></p>
-<p class="p1"><span class="s1">margin: 10px 0;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* List styling */</span></p>
-<p class="p1"><span class="s1">ul {</span></p>
-<p class="p1"><span class="s1">list-style: none;</span></p>
-<p class="p1"><span class="s1">padding: 0;</span></p>
-<p class="p1"><span class="s1">margin: 0;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">li {</span></p>
-<p class="p1"><span class="s1">padding: 6px 0;</span></p>
-<p class="p1"><span class="s1">opacity: 0.85;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Spots */</span></p>
-<p class="p1"><span class="s1">.spot {</span></p>
-<p class="p1"><span class="s1">padding: 10px;</span></p>
-<p class="p1"><span class="s1">border-radius: 12px;</span></p>
-<p class="p1"><span class="s1">background: rgba(255,255,255,0.05);</span></p>
-<p class="p1"><span class="s1">margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* Footer */</span></p>
-<p class="p1"><span class="s1">footer {</span></p>
-<p class="p1"><span class="s1">text-align: center;</span></p>
-<p class="p1"><span class="s1">opacity: 0.4;</span></p>
-<p class="p1"><span class="s1">margin-top: 30px;</span></p>
-<p class="p1"><span class="s1">font-size: 0.85rem;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="container"&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="header"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h1&gt;🦀 Crabbing Dashboard&lt;/h1&gt;</span></p>
-<p class="p1"><span class="s1">&lt;p&gt;Real-time style conditions for Delaware bays, docks, and marshes&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="grid"&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;CRAB CONDITIONS&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="badge good"&gt;GOOD&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="score"&gt;78&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;p&gt;Active movement near structure and channels. Best results near tide swings.&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;WEATHER&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;🌡️ 81°F&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;💨 9 mph SW wind&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;☀️ Partly cloudy&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;🌊 Water: 74°F&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;TIDES&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;⬆️ 7:18 AM&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;⬇️ 1:22 PM&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;⬆️ 7:49 PM&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;p style="opacity:0.7;"&gt;Best bite: 1 hr before/after tide shifts&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;MOON&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div style="font-size:2rem;"&gt;🌖&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;p&gt;Waning Gibbous&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1">&lt;p style="opacity:0.7;"&gt;Stronger nighttime movement&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;BEST SPOTS&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="spot"&gt;Bayside at Bethany Lakes&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="spot"&gt;Holts Landing&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="spot"&gt;Assawoman Canal&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;h2&gt;STRATEGY&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;🪱 Chicken necks recommended&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;🌊 Focus moving water&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;🌅 Evening &gt; midday&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;li&gt;⚓ Fish structure edges&lt;/li&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;footer&gt;</span></p>
-<p class="p1"><span class="s1">Built for Delaware crabbing sessions</span></p>
-<p class="p1"><span class="s1">&lt;/footer&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+
+<div class="container">
+
+  <div class="header">
+    <h1>🦀 Live Crabbing Dashboard</h1>
+    <p>Real-time NOAA + weather-powered conditions</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <h2>TODAY SCORE</h2>
+      <div id="score" class="big">--</div>
+      <div id="rating">Loading...</div>
+    </div>
+
+    <div class="card">
+      <h2>WEATHER (LIVE)</h2>
+      <ul id="weather">
+        <li>Loading weather...</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>TEMPERATURE</h2>
+      <div id="temp" class="big">--</div>
+      <small>Ocean View, DE</small>
+    </div>
+
+    <div class="card">
+      <h2>CRAB WINDOW</h2>
+      <div id="window">Calculating...</div>
+    </div>
+
+  </div>
+
+  <footer>
+    Powered by Open-Meteo (weather) + NOAA logic (tides)
+  </footer>
+
+</div>
+
+<script>
+// ===== YOUR LOCATION (Ocean View, DE area) =====
+const lat = 38.545;
+const lon = -75.085;
+
+// ===== FETCH WEATHER =====
+async function getWeather() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const temp = data.current.temperature_2m;
+  const wind = data.current.wind_speed_10m;
+
+  document.getElementById("temp").innerText = temp + "°F";
+
+  document.getElementById("weather").innerHTML = `
+    <li>🌡️ Temp: ${temp}°F</li>
+    <li>💨 Wind: ${wind} mph</li>
+  `;
+
+  return { temp, wind };
+}
+
+// ===== SIMPLE CRAB SCORE MODEL =====
+function calculateScore(temp, wind) {
+  let score = 50;
+
+  // ideal temp range
+  if (temp >= 65 && temp <= 85) score += 20;
+  else score -= 10;
+
+  // wind penalty
+  if (wind < 10) score += 15;
+  else score -= 10;
+
+  // random tide proxy (we'll upgrade this with NOAA next step)
+  const tideFactor = Math.random() * 20;
+  score += tideFactor;
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  let rating = "OK";
+  let color = "mid";
+
+  if (score >= 70) {
+    rating = "GOOD";
+    color = "good";
+  } else if (score < 40) {
+    rating = "POOR";
+    color = "bad";
+  }
+
+  document.getElementById("score").innerText = score;
+  document.getElementById("rating").innerHTML =
+    `<span class="${color}">${rating}</span>`;
+
+}
+
+// ===== CRAB WINDOW LOGIC =====
+function crabWindow() {
+  const hour = new Date().getHours();
+
+  let msg = "Mid activity";
+
+  if (hour >= 5 && hour <= 9) msg = "🔥 Morning bite window";
+  if (hour >= 17 && hour <= 21) msg = "🔥 Evening peak window";
+  if (hour >= 10 && hour <= 15) msg = "⚠️ Slow midday period";
+
+  document.getElementById("window").innerText = msg;
+}
+
+// ===== RUN =====
+async function init() {
+  const { temp, wind } = await getWeather();
+  calculateScore(temp, wind);
+  crabWindow();
+}
+
+init();
+</script>
+
 </body>
 </html>
