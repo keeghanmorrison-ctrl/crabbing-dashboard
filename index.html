@@ -6,261 +6,282 @@
 <title>Delaware Crabbing Intelligence</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  color: white;
-  background: url("https://upload.wikimedia.org/wikipedia/commons/3/3c/Indian_River_Inlet_Bridge_Delaware.jpg") no-repeat center center fixed;
-  background-size: cover;
-}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(180deg, #0b1220, #0f172a);
+    color: #e2e8f0;
+  }
 
-.overlay {
-  min-height: 100vh;
-  background: rgba(0,0,0,0.65);
-  padding: 20px;
-}
+  header {
+    padding: 20px;
+    text-align: center;
+    background: rgba(30, 41, 59, 0.9);
+  }
 
-.container {
-  max-width: 1050px;
-  margin: auto;
-}
+  h1 { margin: 0; font-size: 26px; }
 
-.header {
-  background: rgba(0, 70, 90, 0.75);
-  padding: 18px;
-  border-radius: 14px;
-  backdrop-filter: blur(8px);
-}
+  .sub { opacity: 0.7; font-size: 13px; margin-top: 6px; }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px;
-  margin-top: 15px;
-}
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
 
-.card {
-  background: rgba(0,0,0,0.55);
-  padding: 15px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-}
+  .grid2 {
+    display: grid;
+    gap: 16px;
+  }
 
-h2 {
-  font-size: 12px;
-  opacity: 0.7;
-  letter-spacing: 1px;
-}
+  @media (min-width: 800px) {
+    .grid2 { grid-template-columns: 1fr 1fr; }
+  }
 
-.big {
-  font-size: 2.4rem;
-  font-weight: bold;
-}
+  .card {
+    background: rgba(30, 41, 59, 0.9);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
 
-.good { color: #4ade80; }
-.mid { color: #facc15; }
-.bad { color: #f87171; }
+  .label { opacity: 0.7; font-size: 13px; margin-bottom: 6px; }
 
-ul { list-style: none; padding: 0; }
-li { margin: 6px 0; opacity: 0.9; }
+  .big { font-size: 34px; font-weight: bold; }
 
-.crab {
-  width: 70px;
-  margin-top: 10px;
-}
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
 
-footer {
-  text-align: center;
-  opacity: 0.6;
-  margin-top: 20px;
-  font-size: 12px;
-}
+  .status {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+
+  .go { color: #22c55e; }
+  .no { color: #ef4444; }
+
+  img {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+
+  .hero {
+    height: 200px;
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  canvas {
+    width: 100%;
+    height: 120px;
+    margin-top: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="overlay">
+<header>
+  <h1>🦀 Delaware Crabbing Intelligence</h1>
+  <div class="sub">Indian River Inlet • Tide + Wind + Bite Forecast</div>
+</header>
+
 <div class="container">
 
-<div class="header">
-  <h1>🦀 Delaware Crabbing Intelligence</h1>
-  <p>Live NOAA tides + real weather + movement-based scoring</p>
-</div>
-
-<div class="grid">
-
+  <!-- WEATHER -->
   <div class="card">
-    <h2>CRAB SCORE</h2>
-    <div id="score" class="big">--</div>
-    <div id="rating">Loading...</div>
-    <img class="crab" src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Blue_crab_Columbus_Crab.jpg">
+    <div class="label">Live Weather (Indian River Inlet)</div>
+    <div class="big" id="temp">Loading...</div>
+    <div class="row">
+      <div id="wind">Wind: --</div>
+      <div id="dir">Dir: --</div>
+    </div>
   </div>
 
+  <!-- ALERT -->
   <div class="card">
-    <h2>WEATHER</h2>
-    <ul id="weather"><li>Loading...</li></ul>
+    <div class="label">Crabbing Alert</div>
+    <div class="status" id="alert">Calculating...</div>
+    <div id="reason" style="margin-top:8px; opacity:0.8;"></div>
   </div>
 
+  <!-- TIDES -->
   <div class="card">
-    <h2>TEMPERATURE</h2>
-    <div id="temp" class="big">--</div>
+    <div class="label">Tide (Next High/Low Cycle)</div>
+    <div id="tideText">Loading tides...</div>
+    <canvas id="tideChart"></canvas>
   </div>
 
+  <!-- INLET IMAGE -->
   <div class="card">
-    <h2>NOAA TIDES</h2>
-    <ul id="tides"><li>Loading...</li></ul>
+    <div class="label">Indian River Inlet</div>
+    <div class="hero"
+      style="background-image:url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1400&q=60');">
+    </div>
   </div>
 
+  <!-- CRAB IMAGE -->
   <div class="card">
-    <h2>CRAB WINDOW</h2>
-    <div id="window">Calculating...</div>
+    <div class="label">Blue Crab</div>
+    <img src="https://images.unsplash.com/photo-1600628422019-6c8d1b2f8b4d?auto=format&fit=crop&w=1400&q=60"/>
   </div>
 
-</div>
-
-<footer>
-Built for Delaware Bay crabbing • NOAA + Open-Meteo
-</footer>
-
-</div>
 </div>
 
 <script>
 
-// ===== LOCATION =====
-const lat = 38.545;
-const lon = -75.085;
-const station = "8557380"; // Lewes, DE NOAA station
+let weatherData = {};
+let tideData = [];
 
-// ===== WEATHER (FIXED) =====
+/* ---------------- WEATHER ---------------- */
 async function getWeather() {
-  try {
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&current=temperature_2m,wind_speed_10m` +
-      `&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+  const lat = 38.6109;
+  const lon = -75.0696;
 
-    const res = await fetch(url);
-    const data = await res.json();
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current_weather=true&temperature_unit=fahrenheit`;
 
-    const temp = data.current.temperature_2m;
-    const wind = data.current.wind_speed_10m;
+  const res = await fetch(url);
+  const data = await res.json();
 
-    document.getElementById("temp").innerText = temp + "°F";
+  const w = data.current_weather;
 
-    document.getElementById("weather").innerHTML = `
-      <li>🌡️ ${temp}°F</li>
-      <li>💨 ${wind} mph</li>
-    `;
+  weatherData = {
+    temp: w.temperature,
+    wind: w.windspeed,
+    dir: w.winddirection
+  };
 
-    return { temp, wind };
+  document.getElementById("temp").innerText = `${Math.round(w.temperature)}°F`;
+  document.getElementById("wind").innerText = `Wind: ${Math.round(w.windspeed)} mph`;
+  document.getElementById("dir").innerText = `Dir: ${Math.round(w.winddirection)}°`;
 
-  } catch (e) {
-    return { temp: 70, wind: 5 };
-  }
+  updateBiteScore();
 }
 
-// ===== TIDES (SAFE PARSE) =====
+/* ---------------- TIDES (NOAA) ---------------- */
 async function getTides() {
-  try {
-    const url =
-      `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter` +
-      `?product=predictions&station=${station}` +
-      `&begin_date=today&end_date=today` +
-      `&datum=MLLW&time_zone=lst_ldt&units=english&format=json`;
+  const station = "8557860"; // Indian River Inlet
 
-    const res = await fetch(url);
-    const data = await res.json();
+  const url =
+    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter` +
+    `?product=predictions&application=NOS.COOPS.TAC.WL` +
+    `&station=${station}&interval=hilo&format=json`;
 
-    return data.predictions || [];
-  } catch (e) {
-    return [];
-  }
+  const res = await fetch(url);
+  const data = await res.json();
+
+  tideData = data.predictions.slice(0, 6);
+
+  let text = "";
+  tideData.forEach(t => {
+    text += `${t.t} • ${t.type} • ${parseFloat(t.v).toFixed(1)} ft\n`;
+  });
+
+  document.getElementById("tideText").innerText = text;
+
+  drawTideChart();
+  updateBiteScore();
 }
 
-// ===== RENDER TIDES =====
-function renderTides(tides) {
-  if (!tides.length) {
-    document.getElementById("tides").innerHTML =
-      "<li>No tide data</li>";
-    return;
-  }
+/* ---------------- TIDE CHART ---------------- */
+function drawTideChart() {
+  const canvas = document.getElementById("tideChart");
+  const ctx = canvas.getContext("2d");
 
-  let html = "";
-  for (let i = 0; i < Math.min(6, tides.length); i++) {
-    html += `<li>🌊 ${tides[i].t}</li>`;
-  }
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 120;
 
-  document.getElementById("tides").innerHTML = html;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if (!tideData.length) return;
+
+  const max = Math.max(...tideData.map(t => parseFloat(t.v)));
+  const min = Math.min(...tideData.map(t => parseFloat(t.v)));
+
+  const w = canvas.width / tideData.length;
+
+  tideData.forEach((t, i) => {
+    const val = parseFloat(t.v);
+
+    const h = ((val - min) / (max - min)) * 100 + 10;
+
+    ctx.fillStyle = t.type === "H" ? "#22c55e" : "#ef4444";
+    ctx.fillRect(i * w + 10, 110 - h, w - 20, h);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "10px Arial";
+    ctx.fillText(t.type, i * w + 15, 115);
+  });
 }
 
-// ===== REAL CRAB SCORE (NO RANDOMNESS) =====
-function crabScore(temp, wind, tides) {
+/* ---------------- BITE MODEL ---------------- */
+function updateBiteScore() {
+  if (!weatherData.temp || !tideData.length) return;
 
-  let score = 40;
+  const temp = weatherData.temp;
+  const wind = weatherData.wind;
 
-  // temperature
-  if (temp >= 65 && temp <= 85) score += 25;
+  // simple heuristic
+  let score = 50;
 
-  // wind
+  // temp sweet spot 65–80
+  if (temp >= 65 && temp <= 80) score += 20;
+  else score -= 15;
+
+  // wind penalty
   if (wind < 10) score += 15;
-  else score -= 10;
+  else if (wind < 18) score += 5;
+  else score -= 20;
 
-  // tide movement = real signal
-  if (tides.length > 2) {
-    for (let i = 1; i < tides.length; i++) {
-      const t1 = new Date(tides[i-1].t);
-      const t2 = new Date(tides[i].t);
+  // tide bonus (incoming high tide proximity)
+  const next = tideData[0];
+  if (next && next.type === "H") score += 15;
 
-      const diff = Math.abs(t2 - t1) / 60000;
-
-      if (diff < 180) score += 3;
-    }
-  }
-
-  score = Math.max(0, Math.min(100, Math.round(score)));
-
-  let label = "OK";
-  let color = "mid";
+  let status = "MARGINAL";
+  let cls = "";
 
   if (score >= 70) {
-    label = "GOOD";
-    color = "good";
-  } else if (score < 40) {
-    label = "POOR";
-    color = "bad";
+    status = "GO 🟢 BEST TIME TO CRAB";
+    cls = "go";
+  } else if (score >= 50) {
+    status = "DECENT 🟡 WORTH TRYING";
+  } else {
+    status = "NO GO 🔴 POOR CONDITIONS";
+    cls = "no";
   }
 
-  document.getElementById("score").innerText = score;
-  document.getElementById("rating").innerHTML =
-    `<span class="${color}">${label}</span>`;
+  document.getElementById("alert").innerText = status;
+  document.getElementById("alert").className = "status " + cls;
+
+  document.getElementById("reason").innerText =
+    `Score: ${score} • Temp ${temp}°F • Wind ${wind} mph`;
 }
 
-// ===== WINDOW =====
-function windowLogic() {
-  const h = new Date().getHours();
-
-  let msg = "Moderate";
-
-  if (h >= 5 && h <= 9) msg = "🔥 Morning bite";
-  if (h >= 17 && h <= 21) msg = "🔥 Evening bite";
-  if (h >= 10 && h <= 15) msg = "⚠️ Slow midday";
-
-  document.getElementById("window").innerText = msg;
-}
-
-// ===== INIT =====
+/* ---------------- INIT ---------------- */
 async function init() {
-  const weather = await getWeather();
-  const tides = await getTides();
-
-  renderTides(tides);
-  crabScore(weather.temp, weather.wind, tides);
-  windowLogic();
+  await Promise.all([getWeather(), getTides()]);
 }
 
 init();
+
+// refresh weather every 10 min
+setInterval(getWeather, 600000);
+
+// refresh tides every hour
+setInterval(getTides, 3600000);
 
 </script>
 
