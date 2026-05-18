@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Crabbing Conditions Dashboard</title>
+  <title>Crabbing Conditions – Your Dock</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Chart.js for tide chart -->
@@ -10,15 +10,15 @@
 
   <style>
     :root {
-      --bg-overlay: rgba(0, 10, 25, 0.78);
-      --accent: #3fd0ff;
-      --accent-soft: rgba(63, 208, 255, 0.2);
-      --card-bg: rgba(10, 20, 40, 0.78);
-      --text-main: #f7fbff;
-      --text-muted: #a9c4d8;
-      --bad: #ff6b6b;
-      --ok: #ffd166;
-      --good: #06d6a0;
+      --bg-overlay: rgba(255, 255, 255, 0.35);
+      --accent: #1b7fcf;
+      --accent-soft: rgba(27, 127, 207, 0.18);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text-main: #102030;
+      --text-muted: #6b7a8a;
+      --bad: #e63946;
+      --ok: #ffb703;
+      --good: #2a9d8f;
     }
 
     * {
@@ -35,9 +35,11 @@
       flex-direction: column;
       position: relative;
       overflow-x: hidden;
+      background: #e7f1fb;
+      transition: transform 0.1s linear;
     }
 
-    /* Bridge background with blur + soft parallax */
+    /* Bridge background with blur + softened, brighter overlay */
     body::before {
       content: "";
       position: fixed;
@@ -45,8 +47,7 @@
       background-image: url("https://i.redd.it/oi447d8dyfbf1.jpeg");
       background-size: cover;
       background-position: center top;
-      filter: blur(4px);
-      transform: translateY(0);
+      filter: blur(4px) brightness(1.1);
       z-index: -2;
     }
 
@@ -54,46 +55,27 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.35), var(--bg-overlay));
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.6), var(--bg-overlay));
       z-index: -1;
     }
 
     header {
       padding: 18px 20px 10px;
       text-align: center;
+      color: #0b1a28;
+      text-shadow: 0 3px 10px rgba(255, 255, 255, 0.6);
     }
 
     header h1 {
       margin: 0;
       font-size: 1.9rem;
       letter-spacing: 0.04em;
-      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
     }
 
     header p {
       margin: 6px 0 0;
-      color: var(--text-muted);
       font-size: 0.9rem;
-      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 10px 20px 0;
-      flex-wrap: wrap;
-    }
-
-    select {
-      background: var(--card-bg);
-      border-radius: 999px;
-      border: 1px solid var(--accent-soft);
-      color: var(--text-main);
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      outline: none;
-      backdrop-filter: blur(10px);
+      opacity: 0.9;
     }
 
     main {
@@ -114,9 +96,8 @@
       background: var(--card-bg);
       border-radius: 18px;
       padding: 16px 18px 18px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.9);
       position: relative;
       overflow: hidden;
     }
@@ -126,7 +107,7 @@
       position: absolute;
       inset: 0;
       background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%);
-      opacity: 0.7;
+      opacity: 0.9;
       pointer-events: none;
     }
 
@@ -138,6 +119,7 @@
       gap: 8px;
       z-index: 1;
       position: relative;
+      color: #0f2235;
     }
 
     .card h2 span.icon {
@@ -169,9 +151,10 @@
       padding: 4px 10px;
       border-radius: 999px;
       font-size: 0.78rem;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(240, 244, 248, 0.9);
+      border: 1px solid rgba(16, 32, 48, 0.12);
       margin-top: 4px;
+      color: var(--text-main);
     }
 
     .pill-dot {
@@ -194,6 +177,7 @@
     .score {
       font-size: 2.4rem;
       font-weight: 700;
+      color: #0f2235;
     }
 
     .score-label {
@@ -205,16 +189,14 @@
       margin: 6px 0 0;
       padding: 0;
       list-style: none;
-      max-height: 160px;
-      overflow-y: auto;
-      font-size: 0.86rem;
+      font-size: 0.9rem;
     }
 
     .tide-list li {
       display: flex;
       justify-content: space-between;
       padding: 4px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     .tide-type {
@@ -264,8 +246,8 @@
       text-align: center;
       padding: 6px 10px 10px;
       font-size: 0.75rem;
-      color: var(--text-muted);
-      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+      color: #0b1a28;
+      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
     }
 
     @media (max-width: 600px) {
@@ -278,15 +260,8 @@
 <body>
   <header>
     <h1>Crabbing Conditions</h1>
-    <p>Bayside · Bethany Lakes · Holts Landing — live weather & tide snapshot</p>
+    <p>Your dock · Live weather & tide snapshot</p>
   </header>
-
-  <div class="controls">
-    <select id="spotSelect">
-      <option value="bayside">Bayside at Bethany Lakes</option>
-      <option value="holts">Holts Landing</option>
-    </select>
-  </div>
 
   <main>
     <div class="grid">
@@ -322,14 +297,14 @@
             <span>Conditions</span>
             <span class="value" id="condValue">–</span>
           </div>
-          <p class="small" id="weatherMeta">Using nearest NWS observation station.</p>
+          <p class="small" id="weatherMeta">Using nearest NWS observation station to your dock.</p>
           <div class="error" id="weatherError"></div>
         </div>
       </section>
 
-      <!-- 2-day outlook -->
+      <!-- 3-day outlook -->
       <section class="card">
-        <h2><span class="icon">📅</span>2‑Day Outlook</h2>
+        <h2><span class="icon">📅</span>3‑Day Outlook</h2>
         <div class="card-content" id="outlookBlock">
           <div class="daily-row">
             <span class="daily-label" id="day1Label">Today</span>
@@ -345,6 +320,13 @@
               <span class="daily-temp" id="day2Temps">–</span>
             </span>
           </div>
+          <div class="daily-row">
+            <span class="daily-label" id="day3Label">Next Day</span>
+            <span>
+              <span class="daily-icon" id="day3Icon">–</span>
+              <span class="daily-temp" id="day3Temps">–</span>
+            </span>
+          </div>
           <p class="small" id="outlookMeta">High/low and summary from NWS forecast.</p>
           <div class="error" id="outlookError"></div>
         </div>
@@ -356,21 +338,21 @@
         <div class="card-content">
           <canvas id="tideChart"></canvas>
           <p class="small" id="tideMeta">
-            NOAA tide predictions (MLLW) from nearby station. Curve approximates the Tides app style.
+            NOAA tide predictions (MLLW) from Indian River Inlet. Red dot shows where you are in the tide cycle.
           </p>
           <div class="error" id="tideError"></div>
         </div>
       </section>
 
-      <!-- Tide list -->
+      <!-- Simple high/low tides -->
       <section class="card">
-        <h2><span class="icon">🌊</span>High / Low Tides</h2>
+        <h2><span class="icon">🌊</span>Today’s High & Low Tide</h2>
         <div class="card-content">
           <ul class="tide-list" id="tideList">
             <li><span>Loading tide data…</span><span></span></li>
           </ul>
           <p class="small">
-            High and low tide times for the next 24 hours.
+            One high and one low tide time for roughly the next 24 hours.
           </p>
         </div>
       </section>
@@ -378,37 +360,23 @@
   </main>
 
   <footer>
-    Built for quick “should I crab today?” checks — tweak the logic as you learn the spots.
+    Built for quick “should I crab today?” checks — tweak the logic as you learn the spot.
   </footer>
 
   <script>
-    // Soft parallax: move background slightly on scroll
+    // Soft parallax: tiny body shift on scroll
     window.addEventListener("scroll", () => {
-      const offset = window.scrollY * 0.15;
-      document.body.style.setProperty(
-        "--parallax-offset",
-        `${offset}px`
-      );
-      document.body.style.transform = `translateY(${offset * -0.02}px)`;
+      const offset = window.scrollY * 0.02;
+      document.body.style.transform = `translateY(${offset * -0.5}px)`;
     });
 
-    // Spots & tide stations
-    const SPOTS = {
-      bayside: {
-        name: "Bayside at Bethany Lakes",
-        lat: 38.541,
-        lon: -75.062,
-        tideStation: "8558690" // Indian River Inlet area (example)
-      },
-      holts: {
-        name: "Holts Landing",
-        lat: 38.575,
-        lon: -75.135,
-        tideStation: "8558690"
-      }
+    // Your exact crabbing spot
+    const SPOT = {
+      name: "Your Dock",
+      lat: 38.56009945688984,
+      lon: -75.08900779608682,
+      tideStation: "8558690" // Indian River Inlet
     };
-
-    const spotSelect = document.getElementById("spotSelect");
 
     // Weather elements
     const tempValue = document.getElementById("tempValue");
@@ -424,6 +392,9 @@
     const day2Label = document.getElementById("day2Label");
     const day2Icon = document.getElementById("day2Icon");
     const day2Temps = document.getElementById("day2Temps");
+    const day3Label = document.getElementById("day3Label");
+    const day3Icon = document.getElementById("day3Icon");
+    const day3Temps = document.getElementById("day3Temps");
     const outlookError = document.getElementById("outlookError");
 
     // Tide elements
@@ -441,17 +412,16 @@
     let latestTides = [];
     let tideChart = null;
 
-    // --- NWS helpers ---
+    // Simple JSON fetch helper
     async function fetchJson(url) {
-      const res = await fetch(url, {
-        headers: {
-          "Accept": "application/geo+json"
-        }
-      });
-      if (!res.ok) throw new Error("Request failed: " + res.status);
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Request failed ${res.status} ${res.statusText}`);
+      }
       return res.json();
     }
 
+    // --- NWS data (obs + 3-day forecast) ---
     async function fetchNwsData(spot) {
       weatherError.textContent = "";
       outlookError.textContent = "";
@@ -460,16 +430,15 @@
       condValue.textContent = "–";
       day1Temps.textContent = "–";
       day2Temps.textContent = "–";
+      day3Temps.textContent = "–";
 
       try {
-        // 1) Get point metadata
         const pointsUrl = `https://api.weather.gov/points/${spot.lat},${spot.lon}`;
         const points = await fetchJson(pointsUrl);
 
         const obsStationsUrl = points.properties.observationStations;
         const forecastUrl = points.properties.forecast;
 
-        // 2) Get stations, then latest observation
         const stations = await fetchJson(obsStationsUrl);
         const firstStation = stations.features[0];
         const stationId = firstStation.properties.stationIdentifier;
@@ -497,20 +466,23 @@
 
         weatherMeta.textContent = `Nearest NWS station: ${stationName} (${stationId}).`;
 
-        // 3) Forecast for highs/lows
         const forecast = await fetchJson(forecastUrl);
         const periods = forecast.properties.periods || [];
 
-        if (periods.length >= 4) {
-          const todayDay = periods[0];   // Today daytime
-          const todayNight = periods[1]; // Tonight
+        if (periods.length >= 6) {
+          const todayDay = periods[0];
+          const todayNight = periods[1];
           const tomorrowDay = periods[2];
           const tomorrowNight = periods[3];
+          const nextDayDay = periods[4];
+          const nextDayNight = periods[5];
 
           const todayHigh = todayDay.temperature;
           const todayLow = todayNight.temperature;
           const tomorrowHigh = tomorrowDay.temperature;
           const tomorrowLow = tomorrowNight.temperature;
+          const nextDayHigh = nextDayDay.temperature;
+          const nextDayLow = nextDayNight.temperature;
 
           day1Label.textContent = todayDay.name;
           day1Icon.textContent = iconFromShortForecast(todayDay.shortForecast);
@@ -519,12 +491,16 @@
           day2Label.textContent = tomorrowDay.name;
           day2Icon.textContent = iconFromShortForecast(tomorrowDay.shortForecast);
           day2Temps.textContent = `${tomorrowHigh}° / ${tomorrowLow}°`;
+
+          day3Label.textContent = nextDayDay.name;
+          day3Icon.textContent = iconFromShortForecast(nextDayDay.shortForecast);
+          day3Temps.textContent = `${nextDayHigh}° / ${nextDayLow}°`;
         } else {
           outlookError.textContent = "Not enough forecast data.";
         }
       } catch (err) {
         console.error(err);
-        weatherError.textContent = "Could not load NWS weather right now.";
+        weatherError.textContent = "Could not load NWS weather: " + err.message;
         outlookError.textContent = "Could not load forecast.";
         latestWeatherObs = null;
       }
@@ -554,7 +530,7 @@
         "&datum=MLLW" +
         "&time_zone=lst_ldt" +
         "&units=english" +
-        "&interval=6" + // 6-minute interval for smooth curve
+        "&interval=6" +
         "&range=24" +
         "&format=json";
 
@@ -566,65 +542,81 @@
         if (!data.predictions) throw new Error("No tide predictions returned");
 
         latestTides = data.predictions;
-        renderTideList(latestTides);
+        renderSimpleHighLow(latestTides);
         renderTideChart(latestTides);
-        tideMeta.textContent = `NOAA tide predictions (MLLW) from station ${spot.tideStation} near ${spot.name}.`;
+        tideMeta.textContent = `NOAA tide predictions (MLLW) from station ${spot.tideStation} near Indian River Inlet.`;
       } catch (err) {
         console.error(err);
-        tideError.textContent = "Could not load tide predictions.";
+        tideError.textContent = "Could not load tide predictions: " + err.message;
         latestTides = [];
         if (tideChart) tideChart.destroy();
       }
     }
 
-    function renderTideList(predictions) {
-      // Also fetch hilo for clear high/low list
-      tideList.innerHTML = "";
-      const hilo = predictions.filter((p) => p.type); // if any type present
-      if (hilo.length === 0) {
-        // fallback: approximate highs/lows from full series
-        predictions.slice(0, 12).forEach((p) => {
-          const li = document.createElement("li");
-          const time = new Date(p.t.replace(" ", "T"));
-          const timeStr = time.toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit"
-          });
-          li.innerHTML = `<span>${timeStr}</span><span>${parseFloat(p.v).toFixed(2)} ft</span>`;
-          tideList.appendChild(li);
-        });
+    // Simple: one high and one low for next ~24h
+    function renderSimpleHighLow(predictions) {
+      if (!predictions || predictions.length === 0) {
+        tideList.innerHTML = "<li><span>No tide data.</span><span></span></li>";
         return;
       }
 
-      hilo.forEach((p) => {
-        const li = document.createElement("li");
-        const time = new Date(p.t.replace(" ", "T"));
-        const timeStr = time.toLocaleTimeString([], {
-          hour: "numeric",
-          minute: "2-digit"
-        });
+      let maxP = predictions[0];
+      let minP = predictions[0];
 
-        const left = document.createElement("span");
-        left.innerHTML = `<span class="tide-type">${p.type}</span> · ${timeStr}`;
-
-        const right = document.createElement("span");
-        right.textContent = `${parseFloat(p.v).toFixed(2)} ft`;
-
-        li.appendChild(left);
-        li.appendChild(right);
-        tideList.appendChild(li);
+      predictions.forEach((p) => {
+        const v = parseFloat(p.v);
+        if (v > parseFloat(maxP.v)) maxP = p;
+        if (v < parseFloat(minP.v)) minP = p;
       });
+
+      const highTime = new Date(maxP.t.replace(" ", "T"));
+      const lowTime = new Date(minP.t.replace(" ", "T"));
+
+      const highStr = highTime.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+      const lowStr = lowTime.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+      tideList.innerHTML = "";
+
+      const highLi = document.createElement("li");
+      highLi.innerHTML = `<span class="tide-type">HIGH</span><span>${highStr} · ${parseFloat(
+        maxP.v
+      ).toFixed(2)} ft</span>`;
+      tideList.appendChild(highLi);
+
+      const lowLi = document.createElement("li");
+      lowLi.innerHTML = `<span class="tide-type">LOW</span><span>${lowStr} · ${parseFloat(
+        minP.v
+      ).toFixed(2)} ft</span>`;
+      tideList.appendChild(lowLi);
     }
 
     function renderTideChart(predictions) {
       const ctx = document.getElementById("tideChart").getContext("2d");
 
-      const labels = predictions.map((p) => {
-        const d = new Date(p.t.replace(" ", "T"));
-        return d.toLocaleTimeString([], { hour: "numeric" });
+      const times = predictions.map((p) => new Date(p.t.replace(" ", "T")));
+      const labels = times.map((d) =>
+        d.toLocaleTimeString([], { hour: "numeric" })
+      );
+      const values = predictions.map((p) => parseFloat(p.v));
+
+      const now = new Date();
+      let closestIndex = 0;
+      let smallestDiff = Infinity;
+      times.forEach((t, i) => {
+        const diff = Math.abs(t - now);
+        if (diff < smallestDiff) {
+          smallestDiff = diff;
+          closestIndex = i;
+        }
       });
 
-      const values = predictions.map((p) => parseFloat(p.v));
+      const currentDotData = values.map((v, i) => (i === closestIndex ? v : null));
 
       if (tideChart) tideChart.destroy();
 
@@ -636,11 +628,20 @@
             {
               label: "Tide height (ft)",
               data: values,
-              borderColor: "#3fd0ff",
-              backgroundColor: "rgba(63, 208, 255, 0.25)",
+              borderColor: "#1b7fcf",
+              backgroundColor: "rgba(27, 127, 207, 0.18)",
               tension: 0.4,
               fill: true,
               pointRadius: 0
+            },
+            {
+              label: "Now",
+              data: currentDotData,
+              borderColor: "#e63946",
+              backgroundColor: "#e63946",
+              pointRadius: 5,
+              pointHoverRadius: 6,
+              showLine: false
             }
           ]
         },
@@ -650,19 +651,19 @@
           scales: {
             x: {
               ticks: {
-                color: "#a9c4d8",
+                color: "#6b7a8a",
                 maxTicksLimit: 8
               },
               grid: {
-                color: "rgba(255,255,255,0.05)"
+                color: "rgba(0,0,0,0.05)"
               }
             },
             y: {
               ticks: {
-                color: "#a9c4d8"
+                color: "#6b7a8a"
               },
               grid: {
-                color: "rgba(255,255,255,0.05)"
+                color: "rgba(0,0,0,0.05)"
               }
             }
           },
@@ -738,20 +739,12 @@
     }
 
     // --- Main flow ---
-    async function loadSpot(spotKey) {
-      const spot = SPOTS[spotKey];
-      if (!spot) return;
-
-      await Promise.all([fetchNwsData(spot), fetchTides(spot)]);
+    async function loadSpot() {
+      await Promise.all([fetchNwsData(SPOT), fetchTides(SPOT)]);
       updateCrabbingScore();
     }
 
-    spotSelect.addEventListener("change", () => {
-      loadSpot(spotSelect.value);
-    });
-
-    // Initial load
-    loadSpot("bayside");
+    loadSpot();
   </script>
 </body>
 </html>
