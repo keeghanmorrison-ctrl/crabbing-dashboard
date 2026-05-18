@@ -81,7 +81,7 @@
     main {
       flex: 1;
       padding: 18px 20px 30px;
-      max-width: 1150px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
     }
@@ -250,6 +250,33 @@
       text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
     }
 
+    /* Wind arrow */
+    .wind-arrow-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .wind-arrow {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .wind-arrow svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease-out;
+    }
+
     @media (max-width: 600px) {
       header h1 {
         font-size: 1.5rem;
@@ -275,19 +302,23 @@
             <span class="pill-dot"></span>
             <span id="scorePillText">Loading conditions</span>
           </div>
-          <p class="small">
-            Score is a rough feel based on wind, rain, and tide timing. Always use your own judgment on the water.
+          <p class="small" id="bestWindowText">
+            Best crabbing window will appear here once tide and weather load.
           </p>
         </div>
       </section>
 
       <!-- Current weather -->
       <section class="card">
-        <h2><span class="icon">🌤️</span>Live Weather (NWS)</h2>
+        <h2><span class="icon">🌤️</span>Live Weather (Bethany Beach XDEB)</h2>
         <div class="card-content" id="weatherBlock">
           <div class="metric-row">
-            <span>Temperature</span>
+            <span>Air temperature</span>
             <span class="value" id="tempValue">–</span>
+          </div>
+          <div class="metric-row">
+            <span>Water temperature</span>
+            <span class="value" id="waterTempValue">–</span>
           </div>
           <div class="metric-row">
             <span>Wind</span>
@@ -297,7 +328,17 @@
             <span>Conditions</span>
             <span class="value" id="condValue">–</span>
           </div>
-          <p class="small" id="weatherMeta">Using nearest NWS observation station to your dock.</p>
+          <div class="wind-arrow-wrapper">
+            <div class="wind-arrow">
+              <svg id="windArrow" viewBox="0 0 24 24">
+                <polygon points="12,3 6,15 12,12 18,15" fill="#1b7fcf" />
+              </svg>
+            </div>
+            <span id="windDirLabel">Wind direction</span>
+          </div>
+          <p class="small" id="weatherMeta">
+            Forced station: Bethany Beach (XDEB). Forecast still uses your exact dock location.
+          </p>
           <div class="error" id="weatherError"></div>
         </div>
       </section>
@@ -327,18 +368,18 @@
               <span class="daily-temp" id="day3Temps">–</span>
             </span>
           </div>
-          <p class="small" id="outlookMeta">High/low and summary from NWS forecast.</p>
+          <p class="small" id="outlookMeta">High/low and summary from NWS forecast grid at your dock.</p>
           <div class="error" id="outlookError"></div>
         </div>
       </section>
 
       <!-- Tide chart -->
       <section class="card">
-        <h2><span class="icon">📈</span>Tide Chart (Next 24h)</h2>
+        <h2><span class="icon">📈</span>Tide Chart (±12h Around Now)</h2>
         <div class="card-content">
           <canvas id="tideChart"></canvas>
           <p class="small" id="tideMeta">
-            NOAA tide predictions (MLLW) from Indian River Inlet. Red dot shows where you are in the tide cycle.
+            NOAA tide predictions (MLLW) from Indian River Inlet (8558690). White dot marks “now” in the cycle.
           </p>
           <div class="error" id="tideError"></div>
         </div>
@@ -352,7 +393,23 @@
             <li><span>Loading tide data…</span><span></span></li>
           </ul>
           <p class="small">
-            One high and one low tide time for roughly the next 24 hours.
+            One high and one low tide time for roughly the next 24 hours (based on Indian River Inlet).
+          </p>
+        </div>
+      </section>
+
+      <!-- Delaware blue crab regulations -->
+      <section class="card">
+        <h2><span class="icon">📏</span>Delaware Blue Crab Rules</h2>
+        <div class="card-content">
+          <ul class="tide-list">
+            <li><span class="tide-type">MIN SIZE</span><span>5" point‑to‑point</span></li>
+            <li><span class="tide-type">DAILY LIMIT</span><span>1 bushel per person</span></li>
+            <li><span class="tide-type">EGG‑BEARING FEMALES</span><span>Must be released</span></li>
+            <li><span class="tide-type">SEASON</span><span>Open year‑round (recreational)</span></li>
+          </ul>
+          <p class="small">
+            Always double‑check DNREC for the latest regulations before keeping crabs.
           </p>
         </div>
       </section>
@@ -380,10 +437,13 @@
 
     // Weather elements
     const tempValue = document.getElementById("tempValue");
+    const waterTempValue = document.getElementById("waterTempValue");
     const windValue = document.getElementById("windValue");
     const condValue = document.getElementById("condValue");
     const weatherError = document.getElementById("weatherError");
     const weatherMeta = document.getElementById("weatherMeta");
+    const windArrow = document.getElementById("windArrow");
+    const windDirLabel = document.getElementById("windDirLabel");
 
     // Outlook elements
     const day1Label = document.getElementById("day1Label");
@@ -407,10 +467,12 @@
     const scoreLabel = document.getElementById("scoreLabel");
     const scorePill = document.getElementById("scorePill");
     const scorePillText = document.getElementById("scorePillText");
+    const bestWindowText = document.getElementById("bestWindowText");
 
     let latestWeatherObs = null;
     let latestTides = [];
     let tideChart = null;
+    let latestWaterTempF = null;
 
     // Simple JSON fetch helper
     async function fetchJson(url) {
@@ -421,7 +483,7 @@
       return res.json();
     }
 
-    // --- NWS data (obs + 3-day forecast) ---
+    // --- NWS data (forced XDEB obs + 3-day forecast) ---
     async function fetchNwsData(spot) {
       weatherError.textContent = "";
       outlookError.textContent = "";
@@ -435,14 +497,11 @@
       try {
         const pointsUrl = `https://api.weather.gov/points/${spot.lat},${spot.lon}`;
         const points = await fetchJson(pointsUrl);
-
-        const obsStationsUrl = points.properties.observationStations;
         const forecastUrl = points.properties.forecast;
 
-        const stations = await fetchJson(obsStationsUrl);
-        const firstStation = stations.features[0];
-        const stationId = firstStation.properties.stationIdentifier;
-        const stationName = firstStation.properties.name;
+        // Force Bethany Beach station XDEB for observations
+        const stationId = "XDEB";
+        const stationName = "Bethany Beach";
 
         const latestObsUrl = `https://api.weather.gov/stations/${stationId}/observations/latest`;
         const latestObs = await fetchJson(latestObsUrl);
@@ -464,7 +523,14 @@
             : "N/A";
         condValue.textContent = textDesc;
 
-        weatherMeta.textContent = `Nearest NWS station: ${stationName} (${stationId}).`;
+        if (windDir !== null) {
+          windArrow.style.transform = `rotate(${windDir}deg)`;
+          windDirLabel.textContent = `Wind from ${Math.round(windDir)}°`;
+        } else {
+          windDirLabel.textContent = "Wind direction unavailable";
+        }
+
+        weatherMeta.textContent = `Forced station: ${stationName} (${stationId}). Forecast from NWS grid at your dock.`;
 
         const forecast = await fetchJson(forecastUrl);
         const periods = forecast.properties.periods || [];
@@ -518,10 +584,46 @@
       return "🌡️";
     }
 
-    // --- NOAA tides ---
+    // --- NOAA water temperature ---
+    async function fetchWaterTemp(spot) {
+      try {
+        const url =
+          "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
+          `?station=${spot.tideStation}` +
+          "&product=water_temperature" +
+          "&units=english" +
+          "&time_zone=lst_ldt" +
+          "&format=json" +
+          "&date=latest";
+
+        const data = await fetchJson(url);
+        if (data && data.data && data.data.length > 0) {
+          const latest = data.data[data.data.length - 1];
+          const tempF = parseFloat(latest.v);
+          latestWaterTempF = tempF;
+          waterTempValue.textContent = `${tempF.toFixed(1)} °F`;
+        } else {
+          waterTempValue.textContent = "N/A";
+        }
+      } catch (err) {
+        console.error(err);
+        waterTempValue.textContent = "N/A";
+      }
+    }
+
+    // --- NOAA tides (±12h around now) ---
     async function fetchTides(spot) {
       tideError.textContent = "";
       tideList.innerHTML = "<li><span>Loading tide data…</span><span></span></li>";
+
+      const now = new Date();
+      const start = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+      const yyyy = start.getFullYear();
+      const mm = String(start.getMonth() + 1).padStart(2, "0");
+      const dd = String(start.getDate()).padStart(2, "0");
+      const hh = String(start.getHours()).padStart(2, "0");
+      const min = String(start.getMinutes()).padStart(2, "0");
+      const beginStr = `${yyyy}${mm}${dd} ${hh}:${min}`;
 
       const url =
         "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
@@ -532,12 +634,11 @@
         "&units=english" +
         "&interval=6" +
         "&range=24" +
+        `&begin_date=${encodeURIComponent(beginStr)}` +
         "&format=json";
 
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Tide request failed");
-        const data = await res.json();
+        const data = await fetchJson(url);
 
         if (!data.predictions) throw new Error("No tide predictions returned");
 
@@ -594,6 +695,9 @@
         minP.v
       ).toFixed(2)} ft</span>`;
       tideList.appendChild(lowLi);
+
+      // Also compute best crabbing window based on incoming tide toward high
+      computeBestWindow(predictions, highTime);
     }
 
     function renderTideChart(predictions) {
@@ -637,8 +741,8 @@
             {
               label: "Now",
               data: currentDotData,
-              borderColor: "#e63946",
-              backgroundColor: "#e63946",
+              borderColor: "#ffffff",
+              backgroundColor: "#ffffff",
               pointRadius: 5,
               pointHoverRadius: 6,
               showLine: false
@@ -676,7 +780,27 @@
       });
     }
 
-    // --- Crabbing score ---
+    // Best crabbing window: incoming tide toward next high
+    function computeBestWindow(predictions, highTime) {
+      if (!predictions || predictions.length === 0) return;
+
+      const now = new Date();
+      const windowStart = new Date(highTime.getTime() - 2 * 60 * 60 * 1000);
+      const windowEnd = new Date(highTime.getTime() + 1 * 60 * 60 * 1000);
+
+      const startStr = windowStart.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+      const endStr = windowEnd.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+      bestWindowText.textContent = `Best crabbing window (incoming tide): ${startStr} – ${endStr}`;
+    }
+
+    // --- Smarter crabbing score ---
     function updateCrabbingScore() {
       if (!latestWeatherObs || latestTides.length === 0) {
         scoreValue.textContent = "–";
@@ -693,16 +817,26 @@
 
       let score = 70;
 
+      // Wind penalty
       if (windMph > 25) score -= 30;
       else if (windMph > 18) score -= 18;
       else if (windMph > 12) score -= 10;
 
+      // Rain/storm penalty
       const isRainy =
         textDesc.includes("rain") ||
         textDesc.includes("showers") ||
         textDesc.includes("storm");
       if (isRainy) score -= 15;
 
+      // Water temp bonus
+      if (latestWaterTempF !== null) {
+        if (latestWaterTempF >= 65) score += 10;
+        else if (latestWaterTempF >= 55) score += 5;
+        else if (latestWaterTempF < 50) score -= 10;
+      }
+
+      // Tide proximity bonus (within 2h of any extreme)
       const now = new Date();
       let tideBonus = 0;
       latestTides.forEach((p) => {
@@ -713,6 +847,12 @@
         }
       });
       score += tideBonus;
+
+      // Time of day bonus (early morning / evening)
+      const hour = now.getHours();
+      if ((hour >= 5 && hour <= 9) || (hour >= 17 && hour <= 20)) {
+        score += 5;
+      }
 
       score = Math.max(0, Math.min(100, score));
 
@@ -729,7 +869,7 @@
         pillClass += " ok";
         scorePillText.textContent = "Mixed conditions";
       } else {
-        label = "Might be tough today—wind or weather not ideal.";
+        label = "Might be tough today—wind, water temp, or weather not ideal.";
         pillClass += " bad";
         scorePillText.textContent = "Challenging conditions";
       }
@@ -740,7 +880,11 @@
 
     // --- Main flow ---
     async function loadSpot() {
-      await Promise.all([fetchNwsData(SPOT), fetchTides(SPOT)]);
+      await Promise.all([
+        fetchNwsData(SPOT),
+        fetchTides(SPOT),
+        fetchWaterTemp(SPOT)
+      ]);
       updateCrabbingScore();
     }
 
