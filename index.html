@@ -1,196 +1,213 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Crab Dashboard</title>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: radial-gradient(circle at top, #0b2a3a, #050b10);
-  color: white;
-}
-
-/* Layout */
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 25px;
-}
-
-/* Header */
-.header {
-  padding: 30px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(0,180,255,0.15), rgba(0,255,170,0.08));
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  margin-bottom: 25px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 2.3rem;
-}
-
-.header p {
-  opacity: 0.7;
-  margin-top: 8px;
-}
-
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
-}
-
-/* Cards */
-.card {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 18px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  background: rgba(255,255,255,0.09);
-}
-
-.card h2 {
-  font-size: 1rem;
-  opacity: 0.8;
-  margin-bottom: 10px;
-  letter-spacing: 0.5px;
-}
-
-/* Status badge */
-.badge {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.good { background: rgba(0,255,140,0.15); color: #5dffb0; }
-.mid { background: rgba(255,200,0,0.15); color: #ffd36a; }
-.bad { background: rgba(255,80,80,0.15); color: #ff7a7a; }
-
-/* Big score */
-.score {
-  font-size: 2.4rem;
-  font-weight: 700;
-  margin: 10px 0;
-}
-
-/* List styling */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  padding: 6px 0;
-  opacity: 0.85;
-}
-
-/* Spots */
-.spot {
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-  margin-bottom: 10px;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  opacity: 0.4;
-  margin-top: 30px;
-  font-size: 0.85rem;
-}
-</style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2487.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
+    span.s1 {font-kerning: none}
+  </style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <div class="header">
-    <h1>🦀 Crabbing Dashboard</h1>
-    <p>Real-time style conditions for Delaware bays, docks, and marshes</p>
-  </div>
-
-  <div class="grid">
-
-    <div class="card">
-      <h2>CRAB CONDITIONS</h2>
-      <div class="badge good">GOOD</div>
-      <div class="score">78</div>
-      <p>Active movement near structure and channels. Best results near tide swings.</p>
-    </div>
-
-    <div class="card">
-      <h2>WEATHER</h2>
-      <ul>
-        <li>🌡️ 81°F</li>
-        <li>💨 9 mph SW wind</li>
-        <li>☀️ Partly cloudy</li>
-        <li>🌊 Water: 74°F</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>TIDES</h2>
-      <ul>
-        <li>⬆️ 7:18 AM</li>
-        <li>⬇️ 1:22 PM</li>
-        <li>⬆️ 7:49 PM</li>
-      </ul>
-      <p style="opacity:0.7;">Best bite: 1 hr before/after tide shifts</p>
-    </div>
-
-    <div class="card">
-      <h2>MOON</h2>
-      <div style="font-size:2rem;">🌖</div>
-      <p>Waning Gibbous</p>
-      <p style="opacity:0.7;">Stronger nighttime movement</p>
-    </div>
-
-    <div class="card">
-      <h2>BEST SPOTS</h2>
-      <div class="spot">Bayside at Bethany Lakes</div>
-      <div class="spot">Holts Landing</div>
-      <div class="spot">Assawoman Canal</div>
-    </div>
-
-    <div class="card">
-      <h2>STRATEGY</h2>
-      <ul>
-        <li>🪱 Chicken necks recommended</li>
-        <li>🌊 Focus moving water</li>
-        <li>🌅 Evening > midday</li>
-        <li>⚓ Fish structure edges</li>
-      </ul>
-    </div>
-
-  </div>
-
-  <footer>
-    Built for Delaware crabbing sessions
-  </footer>
-
-</div>
-
+<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;head&gt;</span></p>
+<p class="p1"><span class="s1">&lt;meta charset="UTF-8" /&gt;</span></p>
+<p class="p1"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</span></p>
+<p class="p1"><span class="s1">&lt;title&gt;Crab Dashboard&lt;/title&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;style&gt;</span></p>
+<p class="p1"><span class="s1">@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap');</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">body {</span></p>
+<p class="p1"><span class="s1">margin: 0;</span></p>
+<p class="p1"><span class="s1">font-family: Inter, sans-serif;</span></p>
+<p class="p1"><span class="s1">background: radial-gradient(circle at top, #0b2a3a, #050b10);</span></p>
+<p class="p1"><span class="s1">color: white;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Layout */</span></p>
+<p class="p1"><span class="s1">.container {</span></p>
+<p class="p1"><span class="s1">max-width: 1100px;</span></p>
+<p class="p1"><span class="s1">margin: auto;</span></p>
+<p class="p1"><span class="s1">padding: 25px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Header */</span></p>
+<p class="p1"><span class="s1">.header {</span></p>
+<p class="p1"><span class="s1">padding: 30px;</span></p>
+<p class="p1"><span class="s1">border-radius: 20px;</span></p>
+<p class="p1"><span class="s1">background: linear-gradient(135deg, rgba(0,180,255,0.15), rgba(0,255,170,0.08));</span></p>
+<p class="p1"><span class="s1">backdrop-filter: blur(10px);</span></p>
+<p class="p1"><span class="s1">box-shadow: 0 10px 30px rgba(0,0,0,0.4);</span></p>
+<p class="p1"><span class="s1">margin-bottom: 25px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">.header h1 {</span></p>
+<p class="p1"><span class="s1">margin: 0;</span></p>
+<p class="p1"><span class="s1">font-size: 2.3rem;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">.header p {</span></p>
+<p class="p1"><span class="s1">opacity: 0.7;</span></p>
+<p class="p1"><span class="s1">margin-top: 8px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Grid */</span></p>
+<p class="p1"><span class="s1">.grid {</span></p>
+<p class="p1"><span class="s1">display: grid;</span></p>
+<p class="p1"><span class="s1">grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));</span></p>
+<p class="p1"><span class="s1">gap: 18px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Cards */</span></p>
+<p class="p1"><span class="s1">.card {</span></p>
+<p class="p1"><span class="s1">background: rgba(255,255,255,0.06);</span></p>
+<p class="p1"><span class="s1">border: 1px solid rgba(255,255,255,0.08);</span></p>
+<p class="p1"><span class="s1">border-radius: 18px;</span></p>
+<p class="p1"><span class="s1">padding: 18px;</span></p>
+<p class="p1"><span class="s1">backdrop-filter: blur(12px);</span></p>
+<p class="p1"><span class="s1">box-shadow: 0 8px 20px rgba(0,0,0,0.35);</span></p>
+<p class="p1"><span class="s1">transition: transform 0.2s ease, background 0.2s ease;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">.card:hover {</span></p>
+<p class="p1"><span class="s1">transform: translateY(-4px);</span></p>
+<p class="p1"><span class="s1">background: rgba(255,255,255,0.09);</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">.card h2 {</span></p>
+<p class="p1"><span class="s1">font-size: 1rem;</span></p>
+<p class="p1"><span class="s1">opacity: 0.8;</span></p>
+<p class="p1"><span class="s1">margin-bottom: 10px;</span></p>
+<p class="p1"><span class="s1">letter-spacing: 0.5px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Status badge */</span></p>
+<p class="p1"><span class="s1">.badge {</span></p>
+<p class="p1"><span class="s1">display: inline-block;</span></p>
+<p class="p1"><span class="s1">padding: 6px 10px;</span></p>
+<p class="p1"><span class="s1">border-radius: 999px;</span></p>
+<p class="p1"><span class="s1">font-weight: 600;</span></p>
+<p class="p1"><span class="s1">font-size: 0.9rem;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">.good { background: rgba(0,255,140,0.15); color: #5dffb0; }</span></p>
+<p class="p1"><span class="s1">.mid { background: rgba(255,200,0,0.15); color: #ffd36a; }</span></p>
+<p class="p1"><span class="s1">.bad { background: rgba(255,80,80,0.15); color: #ff7a7a; }</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Big score */</span></p>
+<p class="p1"><span class="s1">.score {</span></p>
+<p class="p1"><span class="s1">font-size: 2.4rem;</span></p>
+<p class="p1"><span class="s1">font-weight: 700;</span></p>
+<p class="p1"><span class="s1">margin: 10px 0;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* List styling */</span></p>
+<p class="p1"><span class="s1">ul {</span></p>
+<p class="p1"><span class="s1">list-style: none;</span></p>
+<p class="p1"><span class="s1">padding: 0;</span></p>
+<p class="p1"><span class="s1">margin: 0;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">li {</span></p>
+<p class="p1"><span class="s1">padding: 6px 0;</span></p>
+<p class="p1"><span class="s1">opacity: 0.85;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Spots */</span></p>
+<p class="p1"><span class="s1">.spot {</span></p>
+<p class="p1"><span class="s1">padding: 10px;</span></p>
+<p class="p1"><span class="s1">border-radius: 12px;</span></p>
+<p class="p1"><span class="s1">background: rgba(255,255,255,0.05);</span></p>
+<p class="p1"><span class="s1">margin-bottom: 10px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">/* Footer */</span></p>
+<p class="p1"><span class="s1">footer {</span></p>
+<p class="p1"><span class="s1">text-align: center;</span></p>
+<p class="p1"><span class="s1">opacity: 0.4;</span></p>
+<p class="p1"><span class="s1">margin-top: 30px;</span></p>
+<p class="p1"><span class="s1">font-size: 0.85rem;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">&lt;/style&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;body&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="container"&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="header"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h1&gt;🦀 Crabbing Dashboard&lt;/h1&gt;</span></p>
+<p class="p1"><span class="s1">&lt;p&gt;Real-time style conditions for Delaware bays, docks, and marshes&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="grid"&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;CRAB CONDITIONS&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div class="badge good"&gt;GOOD&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div class="score"&gt;78&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;p&gt;Active movement near structure and channels. Best results near tide swings.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;WEATHER&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;🌡️ 81°F&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;💨 9 mph SW wind&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;☀️ Partly cloudy&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;🌊 Water: 74°F&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;TIDES&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;⬆️ 7:18 AM&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;⬇️ 1:22 PM&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;⬆️ 7:49 PM&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;p style="opacity:0.7;"&gt;Best bite: 1 hr before/after tide shifts&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;MOON&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div style="font-size:2rem;"&gt;🌖&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;p&gt;Waning Gibbous&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">&lt;p style="opacity:0.7;"&gt;Stronger nighttime movement&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;BEST SPOTS&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div class="spot"&gt;Bayside at Bethany Lakes&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div class="spot"&gt;Holts Landing&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div class="spot"&gt;Assawoman Canal&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div class="card"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;h2&gt;STRATEGY&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">&lt;ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;🪱 Chicken necks recommended&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;🌊 Focus moving water&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;🌅 Evening &gt; midday&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;li&gt;⚓ Fish structure edges&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;footer&gt;</span></p>
+<p class="p1"><span class="s1">Built for Delaware crabbing sessions</span></p>
+<p class="p1"><span class="s1">&lt;/footer&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
 </body>
 </html>
