@@ -151,6 +151,53 @@
       margin-top: 6px;
     }
 
+    /* Floating location toggle */
+    .location-toggle-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: -10px 0 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .location-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 999px;
+      padding: 4px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(15, 32, 48, 0.08);
+      gap: 4px;
+    }
+
+    .location-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .location-btn span.icon {
+      font-size: 1rem;
+    }
+
+    .location-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(27, 127, 207, 0.5);
+    }
+
+    .location-btn.active span.icon {
+      opacity: 1;
+    }
+
     /* Layout grid */
     .grid {
       display: grid;
@@ -182,6 +229,9 @@
       }
       .grid {
         grid-template-columns: minmax(0, 1fr);
+      }
+      .location-toggle-wrapper {
+        margin-top: -6px;
       }
     }
 
@@ -444,6 +494,19 @@
       padding: 4px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
+
+    .crab-counter-metric {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin: 4px 0;
+      color: var(--text-muted);
+    }
+
+    .crab-counter-metric span.value {
+      color: var(--text-main);
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -453,7 +516,7 @@
       <div class="hero-image"></div>
       <div class="hero-content">
         <h1 class="hero-title">White Creek Crabbing</h1>
-        <p class="hero-subtitle">
+        <p class="hero-subtitle" id="heroSubtitle">
           Live conditions, tides, bait, and rules for your dock off Indian River Bay.
         </p>
         <div class="hero-tags">
@@ -470,11 +533,25 @@
             <span>Blue crab focused</span>
           </span>
         </div>
-        <p class="hero-footer">
+        <p class="hero-footer" id="heroFooter">
           Built around your exact spot: 38.5601, -75.0890 · White Creek, Delaware.
         </p>
       </div>
     </section>
+
+    <!-- FLOATING LOCATION TOGGLE -->
+    <div class="location-toggle-wrapper">
+      <div class="location-toggle">
+        <button class="location-btn active" id="btnWhiteCreek" data-location="white_creek">
+          <span class="icon">🦀</span>
+          <span>White Creek</span>
+        </button>
+        <button class="location-btn" id="btnHolts" data-location="holts_landing">
+          <span class="icon">🦀</span>
+          <span>Holts Landing</span>
+        </button>
+      </div>
+    </div>
 
     <!-- TOP GRID: Score + Weather -->
     <section class="grid">
@@ -714,13 +791,13 @@
             <span class="value" id="windComfortLabel">–</span>
           </div>
           <p class="small" id="windComfortNote">
-            Uses wind speed and direction relative to White Creek.
+            Uses wind speed and direction relative to the selected spot.
           </p>
         </div>
       </section>
     </section>
 
-    <!-- MOON / SIZE / TRIPS / REGS -->
+    <!-- MOON / SIZE / TRIPS / CRAB COUNTER -->
     <section class="grid-3">
       <!-- Moon phase -->
       <section class="card">
@@ -770,14 +847,56 @@
         </div>
       </section>
 
-      <!-- Simple trip tracker -->
+      <!-- Crab counter -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🧮</span>
+                <span>Crab Counter</span>
+              </div>
+              <div class="card-subtitle">
+                Totals pulled from your logged trips (browser only).
+              </div>
+            </div>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Total keepers</span>
+            <span class="value" id="totalKeepers">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Trips logged</span>
+            <span class="value" id="tripsLogged">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Avg keepers/trip</span>
+            <span class="value" id="avgKeepers">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Best trip</span>
+            <span class="value" id="bestTrip">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Last trip</span>
+            <span class="value" id="lastTrip">–</span>
+          </div>
+          <p class="small">
+            Add trips below to see this fill in over time.
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <!-- TRIP TRACKER -->
+    <section class="grid-full">
       <section class="card">
         <div class="card-inner">
           <div class="card-header">
             <div>
               <div class="card-title">
                 <span class="icon">📓</span>
-                <span>Last Trips</span>
+                <span>Trip Log</span>
               </div>
               <div class="card-subtitle">
                 Quick log stored in your browser only.
@@ -833,7 +952,7 @@
     </section>
 
     <footer>
-      Built for “should I crab today?” at your White Creek dock. Tune the logic as you learn the spot.
+      Built for “should I crab today?” at your White Creek and Holts Landing docks. Tune the logic as you learn the spots.
     </footer>
   </div>
 
@@ -844,13 +963,37 @@
       document.body.style.transform = `translateY(${offset * -0.5}px)`;
     });
 
-    // Your exact crabbing spot
-    const SPOT = {
-      name: "Your Dock",
-      lat: 38.56009945688984,
-      lon: -75.08900779608682,
-      tideStation: "8558690" // Indian River Inlet
+    // Locations
+    const LOCATIONS = {
+      white_creek: {
+        id: "white_creek",
+        name: "White Creek",
+        lat: 38.56009945688984,
+        lon: -75.08900779608682,
+        tideStation: "8558690",
+        subtitle: "Live conditions, tides, bait, and rules for your dock off Indian River Bay.",
+        footer: "Built around your exact spot: 38.5601, -75.0890 · White Creek, Delaware."
+      },
+      holts_landing: {
+        id: "holts_landing",
+        name: "Holts Landing State Park",
+        lat: 38.56955,
+        lon: -75.10390,
+        tideStation: "8558690",
+        subtitle: "Conditions and tides for the crabbing pier at Holts Landing State Park.",
+        footer: "Holts Landing pier: 38.5696, -75.1039 · Indian River Bay, Delaware."
+      }
     };
+
+    let currentLocation = LOCATIONS.white_creek;
+
+    // Hero elements
+    const heroSubtitle = document.getElementById("heroSubtitle");
+    const heroFooter = document.getElementById("heroFooter");
+
+    // Toggle buttons
+    const btnWhiteCreek = document.getElementById("btnWhiteCreek");
+    const btnHolts = document.getElementById("btnHolts");
 
     // Weather elements
     const tempValue = document.getElementById("tempValue");
@@ -906,6 +1049,13 @@
     const tripKeepers = document.getElementById("tripKeepers");
     const tripBait = document.getElementById("tripBait");
     const tripList = document.getElementById("tripList");
+
+    // Crab counter
+    const totalKeepersEl = document.getElementById("totalKeepers");
+    const tripsLoggedEl = document.getElementById("tripsLogged");
+    const avgKeepersEl = document.getElementById("avgKeepers");
+    const bestTripEl = document.getElementById("bestTrip");
+    const lastTripEl = document.getElementById("lastTrip");
 
     let latestWeatherObs = null;
     let latestTides = [];
@@ -1025,7 +1175,7 @@
       return "🌡️";
     }
 
-    // NOAA water temperature (always from 8558690)
+    // NOAA water temperature (always from tideStation)
     async function fetchWaterTemp(spot) {
       try {
         const url =
@@ -1044,10 +1194,12 @@
           latestWaterTempF = tempF;
           waterTempValue.textContent = `${tempF.toFixed(1)} °F`;
         } else {
+          latestWaterTempF = null;
           waterTempValue.textContent = "N/A";
         }
       } catch (err) {
         console.error(err);
+        latestWaterTempF = null;
         waterTempValue.textContent = "N/A";
       }
     }
@@ -1326,15 +1478,15 @@
       let label = "";
       let pillClass = "pill";
       if (score >= 75) {
-        label = "Looks like a pretty solid crabbing window.";
+        label = `Looks like a pretty solid crabbing window at ${currentLocation.name}.`;
         pillClass += " good";
         scorePillText.textContent = "Good conditions";
       } else if (score >= 50) {
-        label = "Decent, but check wind, tide strength, and bait choice.";
+        label = `Decent at ${currentLocation.name}, but check wind, tide strength, and bait choice.`;
         pillClass += " ok";
         scorePillText.textContent = "Mixed conditions";
       } else {
-        label = "Might be tough today—wind, water temp, or tide timing not ideal.";
+        label = `Might be tough today at ${currentLocation.name} — wind, water temp, or tide timing not ideal.`;
         pillClass += " bad";
         scorePillText.textContent = "Challenging conditions";
       }
@@ -1401,22 +1553,22 @@
       const windMph = windMps !== null ? windMps * 2.23694 : 0;
 
       let comfort = "Comfortable";
-      let note = "Wind should feel manageable on the dock.";
+      let note = `Wind should feel manageable at ${currentLocation.name}.`;
 
       if (windMph > 20) {
         comfort = "Rough";
-        note = "Strong wind — lines and traps may swing, and surface chop could be annoying.";
+        note = `Strong wind — lines and traps may swing, and surface chop could be annoying at ${currentLocation.name}.`;
       } else if (windMph > 12) {
         comfort = "Breezy";
-        note = "Noticeable wind — fine for crabbing, but expect some drift.";
+        note = `Noticeable wind — fine for crabbing, but expect some drift at ${currentLocation.name}.`;
       }
 
-      // Simple directional tweak: assume east winds blow more up the creek
+      // Simple directional tweak
       if (windDir !== null) {
         if (windMph > 12 && (windDir > 45 && windDir < 135)) {
-          note += " East wind can push chop up White Creek.";
+          note += " East wind can push chop up the bay/creek.";
         } else if (windMph > 12 && (windDir > 225 && windDir < 315)) {
-          note += " West wind is more sheltered in parts of the creek.";
+          note += " West wind is more sheltered in parts of the system.";
         }
       }
 
@@ -1534,19 +1686,22 @@
       const raw = localStorage.getItem("white_creek_trips");
       if (!raw) {
         tripList.textContent = "No trips logged yet.";
+        updateCrabCounter([]);
         return;
       }
       const trips = JSON.parse(raw);
       if (!trips.length) {
         tripList.textContent = "No trips logged yet.";
+        updateCrabCounter([]);
         return;
       }
       tripList.innerHTML = "";
-      trips.slice(-10).reverse().forEach((t) => {
+      trips.slice(-20).reverse().forEach((t) => {
         const div = document.createElement("div");
         div.textContent = `${t.date}: ${t.keepers} keepers on ${t.bait}`;
         tripList.appendChild(div);
       });
+      updateCrabCounter(trips);
     }
 
     function saveTrip(date, keepers, bait) {
@@ -1555,6 +1710,34 @@
       trips.push({ date, keepers, bait });
       localStorage.setItem("white_creek_trips", JSON.stringify(trips));
       loadTrips();
+    }
+
+    function updateCrabCounter(trips) {
+      if (!trips || !trips.length) {
+        totalKeepersEl.textContent = "0";
+        tripsLoggedEl.textContent = "0";
+        avgKeepersEl.textContent = "0";
+        bestTripEl.textContent = "–";
+        lastTripEl.textContent = "–";
+        return;
+      }
+
+      const total = trips.reduce((sum, t) => sum + (t.keepers || 0), 0);
+      const count = trips.length;
+      const avg = total / count;
+
+      let best = trips[0];
+      trips.forEach((t) => {
+        if (t.keepers > best.keepers) best = t;
+      });
+
+      const last = trips[trips.length - 1];
+
+      totalKeepersEl.textContent = total.toString();
+      tripsLoggedEl.textContent = count.toString();
+      avgKeepersEl.textContent = avg.toFixed(1);
+      bestTripEl.textContent = `${best.keepers} on ${best.date}`;
+      lastTripEl.textContent = `${last.keepers} on ${last.date}`;
     }
 
     tripForm.addEventListener("submit", (e) => {
@@ -1567,18 +1750,49 @@
       tripBait.value = "";
     });
 
+    // Location toggle handlers
+    function setLocation(loc) {
+      currentLocation = loc;
+
+      // Update hero text
+      heroSubtitle.textContent = loc.subtitle;
+      heroFooter.textContent = loc.footer;
+
+      // Update toggle UI
+      if (loc.id === "white_creek") {
+        btnWhiteCreek.classList.add("active");
+        btnHolts.classList.remove("active");
+      } else {
+        btnHolts.classList.add("active");
+        btnWhiteCreek.classList.remove("active");
+      }
+
+      // Clear some UI while loading
+      scoreValue.textContent = "–";
+      scoreLabel.textContent = "Loading new location…";
+      scorePill.className = "pill";
+      scorePillText.textContent = "Loading conditions";
+
+      // Reload data
+      loadSpot();
+    }
+
+    btnWhiteCreek.addEventListener("click", () => setLocation(LOCATIONS.white_creek));
+    btnHolts.addEventListener("click", () => setLocation(LOCATIONS.holts_landing));
+
     // Main flow
     async function loadSpot() {
       await Promise.all([
-        fetchNwsData(SPOT),
-        fetchTides(SPOT),
-        fetchWaterTemp(SPOT)
+        fetchNwsData(currentLocation),
+        fetchTides(currentLocation),
+        fetchWaterTemp(currentLocation)
       ]);
       updateCrabbingScore();
       loadTrips();
     }
 
-    loadSpot();
+    // Initial load
+    setLocation(LOCATIONS.white_creek);
   </script>
 </body>
 </html>
