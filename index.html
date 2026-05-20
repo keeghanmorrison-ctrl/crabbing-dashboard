@@ -344,12 +344,20 @@
           <span>Water temp <span style="font-size:0.72rem;opacity:0.7" id="waterTempSource">(Lewes, DE)</span></span>
           <span class="value" id="waterTempValue">–</span>
         </div>
-        <div class="metric-row"><span>Wind</span><span class="value" id="windValue">–</span></div>
+        <div class="metric-row">
+          <span>Wind <span style="font-size:0.72rem;opacity:0.7">(NWS grid forecast)</span></span>
+          <span class="value" id="windForecastValue">–</span>
+        </div>
+        <div class="metric-row">
+          <span>Observed wind <span style="font-size:0.72rem;opacity:0.7" id="windStationLabel"></span></span>
+          <span class="value" id="windValue">–</span>
+        </div>
         <div class="metric-row"><span>Conditions</span><span class="value" id="condValue">–</span></div>
         <div class="wind-arrow-wrapper">
           <div class="wind-arrow"><svg id="windArrow" viewBox="0 0 24 24"><polygon points="12,3 6,15 12,12 18,15"/></svg></div>
           <span id="windDirLabel">Wind direction</span>
         </div>
+        <p class="small" id="airportNote" style="color:var(--ok);display:none">⚠️ Observed wind is from an airport station — typically reads higher than at a sheltered dock. Forecast wind used for scoring.</p>
         <div class="error" id="weatherError"></div>
       </div>
     </section>
@@ -578,11 +586,15 @@ const LOCATIONS = {
   }
 };
 
-let currentLocation = LOCATIONS.white_creek;
+// True only for the two hardcoded spots we have real local knowledge about
+function isKnownLoc(loc) {
+  return loc.id === "white_creek" || loc.id === "holts_landing";
+}
 let latestWeatherObs = null;
 let latestTides = [];
 let latestWaterTempF = null;
 let latestForecastPeriods = [];
+let latestHourlyWind = null;   // { mph, dir, isAirport, stationId }
 let tideChart = null;
 let autoRefreshTimer = null;
 
@@ -608,6 +620,9 @@ const tempValue        = $("tempValue");
 const waterTempValue   = $("waterTempValue");
 const waterTempSource  = $("waterTempSource");
 const windValue        = $("windValue");
+const windForecastValue= $("windForecastValue");
+const windStationLabel = $("windStationLabel");
+const airportNote      = $("airportNote");
 const condValue        = $("condValue");
 const weatherError     = $("weatherError");
 const weatherMeta      = $("weatherMeta");
@@ -686,15 +701,17 @@ function iconFromForecast(text) {
 async function fetchNwsData(spot) {
   weatherError.textContent = "";
   outlookError.textContent = "";
-  [tempValue, windValue, condValue].forEach(el => el.textContent = "–");
+  [tempValue, windValue, windForecastValue, condValue].forEach(el => el.textContent = "–");
+  airportNote.style.display = "none";
 
   try {
     const points = await fetchJson(`https://api.weather.gov/points/${spot.lat},${spot.lon}`);
     const props  = points.properties;
 
-    const [stationsData, forecastData] = await Promise.all([
+    const [stationsData, forecastData, hourlyData] = await Promise.all([
       fetchJson(props.observationStations),
-      fetchJson(props.forecast)
+      fetchJson(props.forecast),
+      fetchJson(props.forecastHourly)
     ]);
 
     const stn = stationsData.features[0].properties;
@@ -707,31 +724,53 @@ async function fetchNwsData(spot) {
     const windDir= p.windDirection.value;
     const desc   = p.textDescription || "N/A";
     const tempF  = tempC != null ? tempC * 9/5 + 32 : null;
-    const windMph= windMs != null ? windMs * 2.23694 : null;
+    const obsMph = windMs != null ? windMs * 2.23694 : null;
 
-    tempValue.textContent = tempF != null ? `${tempF.toFixed(0)} °F` : "N/A";
-    windValue.textContent = windMph != null
-      ? `${windMph.toFixed(0)} mph${windDir != null ? " @ " + Math.round(windDir) + "°" : ""}`
-      : "N/A";
+    tempValue.textContent = tempF != null ? `${tempF.toFixed(0)} u00b0F` : "N/A";
     condValue.textContent = desc;
+    windValue.textContent = obsMph != null
+      ? `${obsMph.toFixed(0)} mph${windDir != null ? " @ " + Math.round(windDir) + "u00b0" : ""}`
+      : "N/A";
+
+    // Flag airport ASOS stations (K + 3 letters)
+    const isAirport = /^K[A-Z]{3}$/.test(stn.stationIdentifier);
+    windStationLabel.textContent = `(${stn.stationIdentifier}${isAirport ? " u2014 airport" : ""})`;
+    if (isAirport) airportNote.style.display = "block";
 
     if (windDir != null) {
       windArrow.style.transform = `rotate(${windDir}deg)`;
-      windDirLabel.textContent  = `Wind from ${Math.round(windDir)}°`;
+      windDirLabel.textContent  = `Wind from ${Math.round(windDir)}u00b0`;
     }
     weatherMeta.textContent = `NWS: ${stn.name} (${stn.stationIdentifier})`;
 
-    // 3-day forecast — filter day/night separately for clean pairing
+    // Hourly forecast wind — grid-interpolated to exact lat/lon, not tied to airport
+    const hourlyPeriods = hourlyData.properties.periods || [];
+    const curHourly = hourlyPeriods[0];
+    if (curHourly) {
+      const forecastMph = parseInt(curHourly.windSpeed);
+      const forecastDir = curHourly.windDirection;
+      windForecastValue.textContent = `${forecastMph} mph ${forecastDir}`;
+      const cardToDeg = { N:0,NNE:22,NE:45,ENE:67,E:90,ESE:112,SE:135,SSE:157,
+        S:180,SSW:202,SW:225,WSW:247,W:270,WNW:292,NW:315,NNW:337 };
+      const forecastDirDeg = cardToDeg[forecastDir] ?? windDir ?? null;
+      if (windDir == null && forecastDirDeg != null) {
+        windArrow.style.transform = `rotate(${forecastDirDeg}deg)`;
+        windDirLabel.textContent  = `Wind from ${forecastDir} (forecast)`;
+      }
+      latestHourlyWind = { mph: forecastMph, dir: forecastDirDeg, isAirport, stationId: stn.stationIdentifier };
+    } else {
+      latestHourlyWind = null;
+    }
+
     const periods = forecastData.properties.periods || [];
     latestForecastPeriods = periods;
     const days   = periods.filter(p => p.isDaytime);
     const nights = periods.filter(p => !p.isDaytime);
-    const pairs  = [[day1Label,day1Icon,day1Temps],[day2Label,day2Icon,day2Temps],[day3Label,day3Icon,day3Temps]];
-    pairs.forEach(([lbl,ico,tmp], i) => {
+    [[day1Label,day1Icon,day1Temps],[day2Label,day2Icon,day2Temps],[day3Label,day3Icon,day3Temps]].forEach(([lbl,ico,tmp], i) => {
       if (days[i] && nights[i]) {
         lbl.textContent = days[i].name;
         ico.textContent = iconFromForecast(days[i].shortForecast);
-        tmp.textContent = `${days[i].temperature}° / ${nights[i].temperature}°`;
+        tmp.textContent = `${days[i].temperature}u00b0 / ${nights[i].temperature}u00b0`;
       }
     });
   } catch(err) {
@@ -739,6 +778,7 @@ async function fetchNwsData(spot) {
     weatherError.textContent = "Could not load NWS weather: " + err.message;
     outlookError.textContent = "Could not load forecast.";
     latestWeatherObs = null;
+    latestHourlyWind = null;
   }
 }
 
@@ -812,8 +852,11 @@ async function fetchTides(spot) {
   tideList.innerHTML = "<li><span>Loading…</span><span></span></li>";
 
   const now = new Date();
+  // Snap start to the previous whole hour so prediction points fall on :00 boundaries
   const start = new Date(now.getTime() - 12*3600000);
+  start.setMinutes(0, 0, 0);
   const end   = new Date(now.getTime() + 12*3600000);
+  end.setMinutes(0, 0, 0);
 
   const url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
     `?station=${spot.tideStation}&product=predictions&datum=MLLW` +
@@ -929,24 +972,39 @@ function describeTideTiming(incoming, peaks, troughs, now) {
 // ─── TIDE CHART ───────────────────────────────────────────────────────────────
 function renderTideChart(predictions) {
   const ctx    = $("tideChart").getContext("2d");
-  const times  = predictions.map(p => new Date(p.t.replace(" ","T")));
-  const values = predictions.map(p => parseFloat(p.v));
   const now    = new Date();
 
-  const closestIdx = times.reduce((best, t, i) =>
-    Math.abs(t-now) < Math.abs(times[best]-now) ? i : best, 0);
+  // Interpolate the tide height at the exact current moment between the two
+  // surrounding prediction points — so the red dot is always precise, not
+  // snapped to the nearest 6-minute interval.
+  const times  = predictions.map(p => new Date(p.t.replace(" ","T")));
+  const values = predictions.map(p => parseFloat(p.v));
 
-  // Clean clock-time labels; mark NOW
-  const labels = times.map((t, i) =>
-    i === closestIdx ? "NOW" : t.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" })
-  );
+  let nowValue = values[0];
+  for (let i = 0; i < times.length - 1; i++) {
+    if (times[i] <= now && now <= times[i+1]) {
+      const frac = (now - times[i]) / (times[i+1] - times[i]);
+      nowValue = values[i] + frac * (values[i+1] - values[i]);
+      break;
+    }
+  }
 
-  // Per-segment color: green incoming, blue outgoing
-  // Use a gradient trick: build two segment datasets
-  const incomingData = values.map((v,i) =>
-    i < values.length-1 && values[i+1] > v ? v : null
-  );
-  const dotData = values.map((v,i) => i === closestIdx ? v : null);
+  // Build the full dataset by inserting the NOW point in chronological order
+  const allTimes  = [...times];
+  const allValues = [...values];
+  let nowInsertIdx = allTimes.findIndex(t => t > now);
+  if (nowInsertIdx === -1) nowInsertIdx = allTimes.length;
+  allTimes.splice(nowInsertIdx, 0, now);
+  allValues.splice(nowInsertIdx, 0, nowValue);
+
+  // Labels: clean clock times on the hour, "NOW" for the injected point
+  const labels = allTimes.map((t, i) => {
+    if (i === nowInsertIdx) return "NOW";
+    return t.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+  });
+
+  // Red dot only on the NOW point
+  const dotData = allValues.map((v, i) => i === nowInsertIdx ? v : null);
 
   if (tideChart) tideChart.destroy();
 
@@ -957,7 +1015,7 @@ function renderTideChart(predictions) {
       datasets: [
         {
           label: "Tide (ft)",
-          data: values,
+          data: allValues,
           borderColor: "#1b7fcf",
           backgroundColor: ctx => {
             const chart = ctx.chart;
@@ -1058,9 +1116,6 @@ function updateCrabbingScore() {
   }
 
   const p      = latestWeatherObs.properties;
-  const windMs = p.windSpeed.value;
-  const windDir= p.windDirection.value;
-  const windMph= windMs != null ? windMs * 2.23694 : 0;
   const desc   = (p.textDescription || "").toLowerCase();
   const loc    = currentLocation;
   const now    = new Date();
@@ -1116,38 +1171,49 @@ function updateCrabbingScore() {
   score += tidePoints;
   breakdown.push({ label:tideReason, val:tidePoints });
 
-  // 3. WIND
-  let windPoints = windMph > 25 ? -20
-                 : windMph > 18 ? -12
-                 : windMph > 12 ? -5
-                 : windMph <= 8 ? +3
+  // 3. WIND — use NWS grid-forecast wind for scoring (not airport-observed)
+  // Wind is a COMFORT factor for crabbing, not a crab-activity factor.
+  // Crabs don't feel wind. We apply a small penalty only for extreme conditions
+  // that make the dock genuinely unusable.
+  const scoringWind = latestHourlyWind ?? { mph: 0, dir: null };
+  const windMph = scoringWind.mph;
+  const windDir = scoringWind.dir;
+
+  let windPoints = windMph > 25 ? -5   // dangerous / dock basically unusable
+                 : windMph > 18 ? -3   // rough but fishable
+                 : windMph > 12 ? -1   // noticeable, minor nuisance
+                 : windMph <= 8 ? +1   // calm is a small positive
                  :                 0;
-  let windLabel = `Wind ${windMph.toFixed(0)} mph`;
+
+  let windLabel = `Wind ${windMph} mph (forecast)`;
   if (windDir != null && windMph > 12) {
     const [expLo, expHi] = loc.exposedDirs;
-    if (windDir >= expLo && windDir <= expHi) { windPoints -= 5; windLabel += " (exposed direction)"; }
+    if (windDir >= expLo && windDir <= expHi) { windPoints -= 2; windLabel += " — exposed direction"; }
   }
   score += windPoints;
-  breakdown.push({ label:windLabel, val:windPoints });
+  breakdown.push({ label: windLabel, val: windPoints });
 
   // 4. RAIN / STORM
   const isRainy = desc.includes("rain") || desc.includes("shower") || desc.includes("storm");
   if (isRainy) { score -= 10; breakdown.push({ label:"Rain / storm", val:-10 }); }
 
-  // 5. SALINITY PROXY — location-specific
+  // 5. SALINITY PROXY — only apply location-specific logic for known spots
   const detailDesc = (latestForecastPeriods[0]?.detailedForecast || "").toLowerCase();
   const recentPrecip = isRainy || detailDesc.includes("rain") || desc.includes("fog") || desc.includes("mist");
-  if (loc.salinityRisk) {
-    const pen = recentPrecip ? -10 : -3;
-    const lbl = recentPrecip
-      ? "Salinity suppression (White Creek after rain)"
-      : "White Creek (slightly lower salinity baseline)";
-    score += pen;
-    breakdown.push({ label:lbl, val:pen });
-  } else {
-    score += 5;
-    breakdown.push({ label:"Holts Landing (open bay, higher salinity)", val:+5 });
+  if (isKnownLoc(loc)) {
+    if (loc.salinityRisk) {
+      const pen = recentPrecip ? -10 : -3;
+      const lbl = recentPrecip
+        ? "Salinity suppression (White Creek after rain)"
+        : "White Creek (slightly lower salinity baseline)";
+      score += pen;
+      breakdown.push({ label:lbl, val:pen });
+    } else {
+      score += 5;
+      breakdown.push({ label:"Holts Landing (open bay, higher salinity)", val:+5 });
+    }
   }
+  // For ZIP/GPS locations we skip salinity adjustment — not enough local knowledge
 
   // 6. TIME OF DAY
   const hour = now.getHours();
@@ -1176,10 +1242,11 @@ function updateCrabbingScore() {
 
   // Render score
   scoreValue.textContent = score;
+  const locName = isKnownLoc(loc) ? loc.name : "this location";
   let pillCls, pillTxt, lbl;
-  if (score >= 75)      { pillCls="pill good"; pillTxt="Good conditions";  lbl=`Solid crabbing window at ${loc.name} — conditions working in your favor.`; }
-  else if (score >= 55) { pillCls="pill ok";   pillTxt="Mixed conditions"; lbl=`Decent at ${loc.name}, but something is holding the score back.`; }
-  else                  { pillCls="pill bad";  pillTxt="Challenging";      lbl=`Tough conditions at ${loc.name} — tide, temp, or wind not cooperating.`; }
+  if (score >= 75)      { pillCls="pill good"; pillTxt="Good conditions";  lbl=`Solid crabbing window at ${locName} — conditions working in your favor.`; }
+  else if (score >= 55) { pillCls="pill ok";   pillTxt="Mixed conditions"; lbl=`Decent at ${locName}, but something is holding the score back.`; }
+  else                  { pillCls="pill bad";  pillTxt="Challenging";      lbl=`Tough conditions at ${locName} — tide, temp, or wind not cooperating.`; }
   scorePill.className = pillCls;
   scorePillText.textContent = pillTxt;
   scoreLabel.textContent = lbl;
@@ -1242,34 +1309,47 @@ function updateWaterClarity() {
   const fd = (latestForecastPeriods[0]?.detailedForecast || "").toLowerCase();
   const rainy = d.includes("rain") || d.includes("shower") || fd.includes("rain");
   const foggy = d.includes("fog") || d.includes("mist");
-  const locNote = currentLocation.salinityRisk && rainy
+  const locNote = isKnownLoc(currentLocation) && currentLocation.salinityRisk && rainy
     ? " White Creek sees more freshwater runoff — clarity takes longer to recover." : "";
+  const holtsNote = isKnownLoc(currentLocation) && currentLocation.id === "holts_landing"
+    ? " Holts benefits from open-bay flushing." : "";
   if (rainy || foggy) {
     clarityLabel.textContent = "Stained / Murky";
     clarityNote.textContent  = "Recent precipitation likely stained the water. Oily baits help scent travel farther." + locNote;
   } else {
     clarityLabel.textContent = "Clear";
-    clarityNote.textContent  = "Water should be reasonably clear; standard bait works well."
-      + (currentLocation.id === "holts_landing" ? " Holts benefits from open-bay flushing." : "");
+    clarityNote.textContent  = "Water should be reasonably clear; standard bait works well." + holtsNote;
   }
 }
 
 function updateWindComfort() {
   if (!latestWeatherObs) { windComfortLabel.textContent = "Unknown"; return; }
-  const ms  = latestWeatherObs.properties.windSpeed.value;
-  const dir = latestWeatherObs.properties.windDirection.value;
-  const mph = ms != null ? ms * 2.23694 : 0;
+  // Use forecast wind for comfort rating too — more accurate at dock than airport
+  const fw  = latestHourlyWind;
+  const obs = latestWeatherObs.properties;
+  const obsMph = obs.windSpeed.value != null ? obs.windSpeed.value * 2.23694 : 0;
+  const mph = fw ? fw.mph : obsMph;
+  const dir = fw ? fw.dir : obs.windDirection.value;
   const loc = currentLocation;
+
+  const locLabel = isKnownLoc(loc) ? loc.name : "your location";
   let comfort, note;
-  if (mph > 20)      { comfort="Rough";       note=`Strong wind at ${loc.name} — lines swing, surface chop.`; }
-  else if (mph > 12) { comfort="Breezy";      note=`Noticeable wind — fine for crabbing, expect some drift at ${loc.name}.`; }
-  else               { comfort="Comfortable"; note=`Wind manageable at ${loc.name}.`; }
-  if (dir != null && mph > 12) {
+  if      (mph > 25) { comfort="Dangerous";   note=`Over 25mph — stay off the dock. Lines unmanageable, safety risk.`; }
+  else if (mph > 18) { comfort="Rough";        note=`Strong wind at ${locLabel} — traps swing, surface chop. Fishable but unpleasant.`; }
+  else if (mph > 12) { comfort="Breezy";       note=`Noticeable wind — expect some line drift at ${locLabel}. Still very fishable.`; }
+  else if (mph > 6)  { comfort="Light breeze"; note=`Light wind at ${locLabel} — comfortable conditions for crabbing.`; }
+  else               { comfort="Calm";         note=`Very calm at ${locLabel} — ideal dock conditions.`; }
+
+  // Only apply directional exposure note for known spots where we have that context
+  if (isKnownLoc(loc) && dir != null && mph > 12) {
     const [lo, hi] = loc.exposedDirs;
-    if (dir >= lo && dir <= hi) note += ` Wind hitting your exposed side at ${loc.name} — choppier than usual.`;
+    if (dir >= lo && dir <= hi) note += ` Wind direction hitting your exposed side — choppier than usual at ${locLabel}.`;
   }
+
+  // Note if using forecast vs airport obs
+  const source = fw ? " (NWS forecast)" : " (airport obs — may read high)";
   windComfortLabel.textContent = comfort;
-  windComfortNote.textContent  = note;
+  windComfortNote.textContent  = note + `\n${mph} mph${source}. Note: wind doesn't affect crab activity — only your comfort.`;
 }
 
 function updateMoonPhase() {
