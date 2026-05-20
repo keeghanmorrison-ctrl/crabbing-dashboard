@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>White Creek Crabbing – Conditions Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Theme color (browser chrome / status bar) -->
+  <meta name="theme-color" content="#1b7fcf" />
+
+  <!-- iOS PWA meta tags — Android uses manifest.json, iOS needs these separately -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Crabbing" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Prevent phone number detection styling on temps/coords -->
+  <meta name="format-detection" content="telephone=no" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -249,6 +264,53 @@
     .crab-counter-metric span.value { color: var(--text-main); font-weight: 500; }
     .moon-image { width: 64px; height: 64px; margin-top: 8px; }
     footer { text-align: center; padding: 10px 4px 4px; font-size: 0.75rem; color: #0b1a28; text-shadow: 0 2px 6px rgba(255,255,255,0.8); }
+
+    /* ── Mobile / PWA improvements ── */
+    a, button, input, select, [role="button"] {
+      touch-action: manipulation;
+    }
+
+    /* Safe area insets for notched/Dynamic Island phones */
+    .app-shell {
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+      padding-bottom: max(32px, env(safe-area-inset-bottom));
+    }
+
+    /* Larger tap targets on location buttons for thumbs */
+    .location-btn {
+      padding: 10px 18px;
+      min-height: 44px; /* Apple HIG minimum tap target */
+    }
+
+    /* Prevent iOS from styling inputs/selects differently */
+    input, select, button {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    /* Re-apply select arrow since we cleared appearance */
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 24px;
+    }
+
+    /* Prevent text size adjustment on rotate */
+    body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    /* Smooth scroll on iOS */
+    * { -webkit-overflow-scrolling: touch; }
+
+    /* Make trip list scroll smoothly on iOS */
+    .trip-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Slightly bigger score value on small screens for glanceability */
+    @media (max-width: 390px) {
+      .score-value { font-size: 2.8rem; }
+      .go-verdict  { font-size: 1.1rem; }
+      .hero-title  { font-size: 1.3rem; }
+    }
 
     /* REFRESH BUTTON */
     .refresh-btn {
@@ -1640,6 +1702,15 @@ async function loadSpot() {
   ]);
   updateCrabbingScore();
   loadTrips();
+}
+
+// ─── SERVICE WORKER REGISTRATION ─────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(reg => console.log("SW registered:", reg.scope))
+      .catch(err => console.warn("SW registration failed:", err));
+  });
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
