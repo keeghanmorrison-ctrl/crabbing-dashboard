@@ -1,17 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>White Creek Crabbing – Conditions Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-
   <!-- Inter font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 
   <style>
     :root {
@@ -27,11 +24,9 @@
       --good: #2a9d8f;
     }
 
-
     * {
       box-sizing: border-box;
     }
-
 
     body {
       margin: 0;
@@ -46,7 +41,6 @@
       transition: transform 0.1s linear;
     }
 
-
     /* Parallax bridge background */
     body::before {
       content: "";
@@ -59,7 +53,6 @@
       z-index: -2;
     }
 
-
     body::after {
       content: "";
       position: fixed;
@@ -68,13 +61,11 @@
       z-index: -1;
     }
 
-
     .app-shell {
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px 16px 32px;
     }
-
 
     /* Hero */
     .hero {
@@ -89,7 +80,6 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
     }
 
-
     .hero-image {
       flex: 2;
       background-image: url("https://coastalartbybrent.com/cdn/shop/files/11x14Prints-BlueCrab.jpg?v=1698776561");
@@ -97,7 +87,6 @@
       background-position: center;
       position: relative;
     }
-
 
     .hero-image::after {
       content: "";
@@ -110,7 +99,6 @@
       );
     }
 
-
     .hero-content {
       flex: 3;
       position: relative;
@@ -122,7 +110,6 @@
       color: #f7fbff;
     }
 
-
     .hero-title {
       font-size: 2.1rem;
       font-weight: 700;
@@ -130,13 +117,11 @@
       letter-spacing: 0.04em;
     }
 
-
     .hero-subtitle {
       font-size: 0.95rem;
       opacity: 0.9;
       margin: 0 0 14px;
     }
-
 
     .hero-tags {
       display: flex;
@@ -144,7 +129,6 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-
 
     .tag {
       padding: 4px 10px;
@@ -157,7 +141,6 @@
       gap: 6px;
     }
 
-
     .tag-dot {
       width: 8px;
       height: 8px;
@@ -165,13 +148,11 @@
       background: var(--accent);
     }
 
-
     .hero-footer {
       font-size: 0.8rem;
       opacity: 0.85;
       margin-top: 6px;
     }
-
 
     /* Floating location toggle */
     .location-toggle-wrapper {
@@ -182,7 +163,6 @@
       z-index: 2;
     }
 
-
     .location-toggle {
       display: inline-flex;
       background: rgba(255, 255, 255, 0.96);
@@ -192,7 +172,6 @@
       border: 1px solid rgba(15, 32, 48, 0.08);
       gap: 4px;
     }
-
 
     .location-btn {
       border-radius: 999px;
@@ -208,13 +187,11 @@
       transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
     }
 
-
     .location-btn.active {
       background: var(--accent);
       color: #ffffff;
       box-shadow: 0 6px 18px rgba(27, 127, 207, 0.5);
     }
-
 
     /* Layout */
     .grid {
@@ -224,7 +201,6 @@
       margin-bottom: 20px;
     }
 
-
     .grid-full {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
@@ -232,14 +208,12 @@
       margin-bottom: 20px;
     }
 
-
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
       margin-bottom: 20px;
     }
-
 
     @media (max-width: 900px) {
       .hero {
@@ -256,7 +230,6 @@
       }
     }
 
-
     .card {
       background: var(--card-bg);
       border-radius: 22px;
@@ -267,7 +240,6 @@
       overflow: hidden;
     }
 
-
     .card::before {
       content: "";
       position: absolute;
@@ -277,12 +249,10 @@
       pointer-events: none;
     }
 
-
     .card-inner {
       position: relative;
       z-index: 1;
     }
-
 
     .card-header {
       display: flex;
@@ -290,7 +260,6 @@
       justify-content: space-between;
       margin-bottom: 10px;
     }
-
 
     .card-title {
       display: flex;
@@ -301,18 +270,15 @@
       color: #0f2235;
     }
 
-
     .card-title .icon {
       font-size: 1.2rem;
     }
-
 
     .card-subtitle {
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 2px;
     }
-
 
     .metric-row {
       display: flex;
@@ -322,12 +288,10 @@
       color: var(--text-muted);
     }
 
-
     .metric-row span.value {
       color: var(--text-main);
       font-weight: 500;
     }
-
 
     .score-main {
       display: flex;
@@ -336,7 +300,6 @@
       margin-top: 4px;
     }
 
-
     .score-value {
       font-size: 3.1rem;
       font-weight: 700;
@@ -344,13 +307,11 @@
       color: #0f2235;
     }
 
-
     .score-text {
       font-size: 0.9rem;
       color: var(--text-muted);
       max-width: 260px;
     }
-
 
     .pill {
       display: inline-flex;
@@ -365,14 +326,12 @@
       color: var(--text-main);
     }
 
-
     .pill-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--accent);
     }
-
 
     .pill.good .pill-dot {
       background: var(--good);
@@ -384,20 +343,17 @@
       background: var(--bad);
     }
 
-
     .small {
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 8px;
     }
 
-
     .error {
       color: var(--bad);
       font-size: 0.8rem;
       margin-top: 6px;
     }
-
 
     .daily-row {
       display: flex;
@@ -407,21 +363,17 @@
       font-size: 0.9rem;
     }
 
-
     .daily-label {
       color: var(--text-muted);
     }
-
 
     .daily-temp {
       font-weight: 500;
     }
 
-
     .daily-icon {
       margin-right: 6px;
     }
-
 
     .tide-list {
       margin: 8px 0 0;
@@ -430,14 +382,12 @@
       font-size: 0.9rem;
     }
 
-
     .tide-list li {
       display: flex;
       justify-content: space-between;
       padding: 4px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
-
 
     .tide-type {
       text-transform: uppercase;
@@ -446,11 +396,9 @@
       color: var(--accent);
     }
 
-
     canvas {
       max-height: 260px;
     }
-
 
     footer {
       text-align: center;
@@ -460,7 +408,6 @@
       text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
     }
 
-
     .wind-arrow-wrapper {
       display: flex;
       align-items: center;
@@ -469,7 +416,6 @@
       font-size: 0.8rem;
       color: var(--text-muted);
     }
-
 
     .wind-arrow {
       width: 30px;
@@ -482,7 +428,6 @@
       background: rgba(255, 255, 255, 0.9);
     }
 
-
     .wind-arrow svg {
       width: 18px;
       height: 18px;
@@ -490,11 +435,9 @@
       fill: var(--accent);
     }
 
-
     .regs-list li {
       border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
     }
-
 
     .trip-form {
       display: flex;
@@ -504,7 +447,6 @@
       font-size: 0.8rem;
     }
 
-
     .trip-form input,
     .trip-form select {
       padding: 4px 6px;
@@ -512,7 +454,6 @@
       border: 1px solid rgba(0, 0, 0, 0.15);
       font-size: 0.8rem;
     }
-
 
     .trip-form button {
       padding: 4px 10px;
@@ -524,7 +465,6 @@
       cursor: pointer;
     }
 
-
     .trip-list {
       margin-top: 8px;
       font-size: 0.8rem;
@@ -532,12 +472,10 @@
       overflow-y: auto;
     }
 
-
     .trip-list div {
       padding: 4px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
-
 
     .crab-counter-metric {
       display: flex;
@@ -547,12 +485,10 @@
       color: var(--text-muted);
     }
 
-
     .crab-counter-metric span.value {
       color: var(--text-main);
       font-weight: 500;
     }
-
 
     .moon-image {
       width: 64px;
@@ -591,7 +527,6 @@
       </div>
     </section>
 
-
     <!-- FLOATING LOCATION TOGGLE -->
     <div class="location-toggle-wrapper">
       <div class="location-toggle">
@@ -603,7 +538,6 @@
         </button>
       </div>
     </div>
-
 
     <!-- TOP GRID: Score + Weather -->
     <section class="grid">
@@ -636,7 +570,6 @@
           </div>
         </div>
       </section>
-
 
       <!-- Weather -->
       <section class="card">
@@ -683,7 +616,6 @@
       </section>
     </section>
 
-
     <!-- MIDDLE GRID: Outlook + Tides -->
     <section class="grid">
       <!-- 3-day outlook -->
@@ -727,7 +659,6 @@
         </div>
       </section>
 
-
       <!-- Simple high/low tides -->
       <section class="card">
         <div class="card-inner">
@@ -752,7 +683,6 @@
       </section>
     </section>
 
-
     <!-- FULL-WIDTH TIDE CHART -->
     <section class="grid-full">
       <section class="card">
@@ -773,7 +703,6 @@
         </div>
       </section>
     </section>
-
 
     <!-- BAIT / CLARITY / WIND / SUNRISE -->
     <section class="grid-3">
@@ -805,7 +734,6 @@
         </div>
       </section>
 
-
       <!-- Water clarity -->
       <section class="card">
         <div class="card-inner">
@@ -830,7 +758,6 @@
         </div>
       </section>
 
-
       <!-- Wind comfort -->
       <section class="card">
         <div class="card-inner">
@@ -854,7 +781,6 @@
           </p>
         </div>
       </section>
-
 
       <!-- Sunrise / Sunset -->
       <section class="card">
@@ -889,7 +815,6 @@
       </section>
     </section>
 
-
     <!-- MOON / SIZE / CRAB COUNTER -->
     <section class="grid-3">
       <!-- Moon phase -->
@@ -917,7 +842,6 @@
         </div>
       </section>
 
-
       <!-- Crab size expectation -->
       <section class="card">
         <div class="card-inner">
@@ -941,7 +865,6 @@
           </p>
         </div>
       </section>
-
 
       <!-- Crab counter -->
       <section class="card">
@@ -984,7 +907,6 @@
       </section>
     </section>
 
-
     <!-- TRIP TRACKER -->
     <section class="grid-full">
       <section class="card">
@@ -1020,7 +942,6 @@
       </section>
     </section>
 
-
     <!-- REGS -->
     <section class="grid-full">
       <section class="card">
@@ -1049,12 +970,10 @@
       </section>
     </section>
 
-
     <footer>
       Built for “should I crab today?” at your White Creek and Holts Landing docks. Tune the logic as you learn the spots.
     </footer>
   </div>
-
 
   <script>
     // Parallax scroll
@@ -1062,7 +981,6 @@
       const offset = window.scrollY * 0.02;
       document.body.style.transform = `translateY(${offset * -0.5}px)`;
     });
-
 
     // Locations
     const LOCATIONS = {
@@ -1086,19 +1004,15 @@
       }
     };
 
-
     let currentLocation = LOCATIONS.white_creek;
-
 
     // Hero elements
     const heroSubtitle = document.getElementById("heroSubtitle");
     const heroFooter = document.getElementById("heroFooter");
 
-
     // Toggle buttons
     const btnWhiteCreek = document.getElementById("btnWhiteCreek");
     const btnHolts = document.getElementById("btnHolts");
-
 
     // Weather elements
     const tempValue = document.getElementById("tempValue");
@@ -1109,7 +1023,6 @@
     const weatherMeta = document.getElementById("weatherMeta");
     const windArrow = document.getElementById("windArrow");
     const windDirLabel = document.getElementById("windDirLabel");
-
 
     // Outlook elements
     const day1Label = document.getElementById("day1Label");
@@ -1123,13 +1036,11 @@
     const day3Temps = document.getElementById("day3Temps");
     const outlookError = document.getElementById("outlookError");
 
-
     // Tide elements
     const tideList = document.getElementById("tideList");
     const tideError = document.getElementById("tideError");
     const tideMeta = document.getElementById("tideMeta");
     const tideTimingNote = document.getElementById("tideTimingNote");
-
 
     // Score elements
     const scoreValue = document.getElementById("scoreValue");
@@ -1137,7 +1048,6 @@
     const scorePill = document.getElementById("scorePill");
     const scorePillText = document.getElementById("scorePillText");
     const bestWindowText = document.getElementById("bestWindowText");
-
 
     // Bait / clarity / wind comfort / moon / size / sun
     const baitPrimary = document.getElementById("baitPrimary");
@@ -1153,12 +1063,10 @@
     const sizeNote = document.getElementById("sizeNote");
     const moonImageContainer = document.getElementById("moonImageContainer");
 
-
     const sunriseValue = document.getElementById("sunriseValue");
     const sunsetValue = document.getElementById("sunsetValue");
     const dayLengthValue = document.getElementById("dayLengthValue");
     const sunNote = document.getElementById("sunNote");
-
 
     // Trip tracker
     const tripForm = document.getElementById("tripForm");
@@ -1167,7 +1075,6 @@
     const tripBait = document.getElementById("tripBait");
     const tripList = document.getElementById("tripList");
 
-
     // Crab counter
     const totalKeepersEl = document.getElementById("totalKeepers");
     const tripsLoggedEl = document.getElementById("tripsLogged");
@@ -1175,13 +1082,11 @@
     const bestTripEl = document.getElementById("bestTrip");
     const lastTripEl = document.getElementById("lastTrip");
 
-
     let latestWeatherObs = null;
     let latestTides = [];
     let tideChart = null;
     let latestWaterTempF = null;
     let latestForecastPeriods = [];
-
 
     async function fetchJson(url) {
       const res = await fetch(url);
@@ -1191,7 +1096,6 @@
       return res.json();
     }
 
-
     // NWS data: auto station + forecast
     async function fetchNwsData(spot) {
       weatherError.textContent = "";
@@ -1200,26 +1104,21 @@
       windValue.textContent = "–";
       condValue.textContent = "–";
 
-
       try {
         const pointsUrl = `https://api.weather.gov/points/${spot.lat},${spot.lon}`;
         const points = await fetchJson(pointsUrl);
 
-
         const obsStationsUrl = points.properties.observationStations;
         const forecastUrl = points.properties.forecast;
-
 
         const stations = await fetchJson(obsStationsUrl);
         const firstStation = stations.features[0];
         const stationId = firstStation.properties.stationIdentifier;
         const stationName = firstStation.properties.name;
 
-
         const latestObsUrl = `https://api.weather.gov/stations/${stationId}/observations/latest`;
         const latestObs = await fetchJson(latestObsUrl);
         latestWeatherObs = latestObs;
-
 
         const props = latestObs.properties;
         const tempC = props.temperature.value;
@@ -1227,10 +1126,8 @@
         const windDir = props.windDirection.value;
         const textDesc = props.textDescription || "N/A";
 
-
         const tempF = tempC !== null ? (tempC * 9) / 5 + 32 : null;
         const windMph = windMps !== null ? windMps * 2.23694 : null;
-
 
         tempValue.textContent = tempF !== null ? `${tempF.toFixed(0)} °F` : "N/A";
         windValue.textContent =
@@ -1241,7 +1138,6 @@
             : "N/A";
         condValue.textContent = textDesc;
 
-
         if (windDir !== null) {
           windArrow.style.transform = `rotate(${windDir}deg)`;
           windDirLabel.textContent = `Wind from ${Math.round(windDir)}°`;
@@ -1249,14 +1145,11 @@
           windDirLabel.textContent = "Wind direction unavailable";
         }
 
-
         weatherMeta.textContent = `Nearest NWS station: ${stationName} (${stationId}).`;
-
 
         const forecast = await fetchJson(forecastUrl);
         const periods = forecast.properties.periods || [];
         latestForecastPeriods = periods;
-
 
         if (periods.length >= 6) {
           const todayDay = periods[0];
@@ -1266,7 +1159,6 @@
           const nextDayDay = periods[4];
           const nextDayNight = periods[5];
 
-
           const todayHigh = todayDay.temperature;
           const todayLow = todayNight.temperature;
           const tomorrowHigh = tomorrowDay.temperature;
@@ -1274,16 +1166,13 @@
           const nextDayHigh = nextDayDay.temperature;
           const nextDayLow = nextDayNight.temperature;
 
-
           day1Label.textContent = todayDay.name;
           day1Icon.textContent = iconFromShortForecast(todayDay.shortForecast);
           day1Temps.textContent = `${todayHigh}° / ${todayLow}°`;
 
-
           day2Label.textContent = tomorrowDay.name;
           day2Icon.textContent = iconFromShortForecast(tomorrowDay.shortForecast);
           day2Temps.textContent = `${tomorrowHigh}° / ${tomorrowLow}°`;
-
 
           day3Label.textContent = nextDayDay.name;
           day3Icon.textContent = iconFromShortForecast(nextDayDay.shortForecast);
@@ -1299,7 +1188,6 @@
       }
     }
 
-
     function iconFromShortForecast(text) {
       if (!text) return "–";
       const t = text.toLowerCase();
@@ -1312,7 +1200,6 @@
       return "🌡️";
     }
 
-
     // NOAA water temperature
     async function fetchWaterTemp(spot) {
       try {
@@ -1324,7 +1211,6 @@
           "&time_zone=lst_ldt" +
           "&format=json" +
           "&date=latest";
-
 
         const data = await fetchJson(url);
         if (data && data.data && data.data.length > 0) {
@@ -1343,12 +1229,10 @@
       }
     }
 
-
     // NOAA tides: ±12h around now
     async function fetchTides(spot) {
       tideError.textContent = "";
       tideList.innerHTML = "<li><span>Loading tide data…</span><span></span></li>";
-
 
       const now = new Date();
       const start = new Date(now.getTime() - 12 * 60 * 60 * 1000);
@@ -1358,7 +1242,6 @@
       const hh = String(start.getHours()).padStart(2, "0");
       const min = String(start.getMinutes()).padStart(2, "0");
       const beginStr = `${yyyy}${mm}${dd} ${hh}:${min}`;
-
 
       const url =
         "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
@@ -1372,13 +1255,10 @@
         `&begin_date=${encodeURIComponent(beginStr)}` +
         "&format=json";
 
-
       try {
         const data = await fetchJson(url);
 
-
         if (!data.predictions) throw new Error("No tide predictions returned");
-
 
         latestTides = data.predictions;
         renderSimpleHighLow(latestTides);
@@ -1392,17 +1272,14 @@
       }
     }
 
-
     function renderSimpleHighLow(predictions) {
       if (!predictions || predictions.length === 0) {
         tideList.innerHTML = "<li><span>No tide data.</span><span></span></li>";
         return;
       }
 
-
       let maxP = predictions[0];
       let minP = predictions[0];
-
 
       predictions.forEach((p) => {
         const v = parseFloat(p.v);
@@ -1410,10 +1287,8 @@
         if (v < parseFloat(minP.v)) minP = p;
       });
 
-
       const highTime = new Date(maxP.t.replace(" ", "T"));
       const lowTime = new Date(minP.t.replace(" ", "T"));
-
 
       const highStr = highTime.toLocaleTimeString([], {
         hour: "numeric",
@@ -1424,9 +1299,7 @@
         minute: "2-digit"
       });
 
-
       tideList.innerHTML = "";
-
 
       const highLi = document.createElement("li");
       highLi.innerHTML = `<span class="tide-type">HIGH</span><span>${highStr} · ${parseFloat(
@@ -1434,29 +1307,24 @@
       ).toFixed(2)} ft</span>`;
       tideList.appendChild(highLi);
 
-
       const lowLi = document.createElement("li");
       lowLi.innerHTML = `<span class="tide-type">LOW</span><span>${lowStr} · ${parseFloat(
         minP.v
       ).toFixed(2)} ft</span>`;
       tideList.appendChild(lowLi);
 
-
       computeBestWindow(predictions, highTime, lowTime);
       describeTideTiming(highTime, lowTime);
     }
 
-
     function renderTideChart(predictions) {
       const ctx = document.getElementById("tideChart").getContext("2d");
-
 
       const times = predictions.map((p) => new Date(p.t.replace(" ", "T")));
       const labels = times.map((d) =>
         d.toLocaleTimeString([], { hour: "numeric" })
       );
       const values = predictions.map((p) => parseFloat(p.v));
-
 
       const now = new Date();
       let closestIndex = 0;
@@ -1469,12 +1337,9 @@
         }
       });
 
-
       const currentDotData = values.map((v, i) => (i === closestIndex ? v : null));
 
-
       if (tideChart) tideChart.destroy();
-
 
       tideChart = new Chart(ctx, {
         type: "line",
@@ -1532,15 +1397,12 @@
       });
     }
 
-
     // Best crabbing window: incoming tide toward next high
     function computeBestWindow(predictions, highTime, lowTime) {
       if (!predictions || predictions.length === 0) return;
 
-
       const windowStart = new Date(highTime.getTime() - 2 * 60 * 60 * 1000);
       const windowEnd = new Date(highTime.getTime() + 1 * 60 * 60 * 1000);
-
 
       const startStr = windowStart.toLocaleTimeString([], {
         hour: "numeric",
@@ -1551,10 +1413,8 @@
         minute: "2-digit"
       });
 
-
       bestWindowText.textContent = `Best crabbing window (incoming tide): ${startStr} – ${endStr}`;
     }
-
 
     // Tide timing description with corrected logic
     function describeTideTiming(highTime, lowTime) {
@@ -1562,13 +1422,10 @@
       const diffHigh = (highTime - now) / (1000 * 60 * 60);
       const diffLow = (lowTime - now) / (1000 * 60 * 60);
 
-
       let msg = "";
-
 
       const absHigh = Math.abs(diffHigh);
       const absLow = Math.abs(diffLow);
-
 
       if (absHigh < 0.5) {
         msg = "Peak high tide — crabs spread out into grass. Expect slower action.";
@@ -1582,10 +1439,8 @@
         msg = "Mid-tide — movement is decent; watch current strength for comfort.";
       }
 
-
       tideTimingNote.textContent = msg;
     }
-
 
     // Smarter crabbing score
     function updateCrabbingScore() {
@@ -1597,21 +1452,17 @@
         return;
       }
 
-
       const props = latestWeatherObs.properties;
       const windMps = props.windSpeed.value;
       const windMph = windMps !== null ? windMps * 2.23694 : 0;
       const textDesc = (props.textDescription || "").toLowerCase();
 
-
       let score = 70;
-
 
       // Wind penalty
       if (windMph > 25) score -= 30;
       else if (windMph > 18) score -= 18;
       else if (windMph > 12) score -= 10;
-
 
       // Rain/storm penalty
       const isRainy =
@@ -1620,14 +1471,12 @@
         textDesc.includes("storm");
       if (isRainy) score -= 15;
 
-
       // Water temp bonus
       if (latestWaterTempF !== null) {
         if (latestWaterTempF >= 65) score += 10;
         else if (latestWaterTempF >= 55) score += 5;
         else if (latestWaterTempF < 50) score -= 10;
       }
-
 
       // Tide proximity bonus
       const now = new Date();
@@ -1641,19 +1490,15 @@
       });
       score += tideBonus;
 
-
       // Time of day bonus
       const hour = now.getHours();
       if ((hour >= 5 && hour <= 9) || (hour >= 17 && hour <= 20)) {
         score += 5;
       }
 
-
       score = Math.max(0, Math.min(100, score));
 
-
       scoreValue.textContent = score.toFixed(0);
-
 
       let label = "";
       let pillClass = "pill";
@@ -1671,14 +1516,11 @@
         scorePillText.textContent = "Challenging conditions";
       }
 
-
       scoreLabel.textContent = label;
       scorePill.className = pillClass;
 
-
       updateDerivedCards(score);
     }
-
 
     // Derived cards
     function updateDerivedCards(score) {
@@ -1689,7 +1531,6 @@
       updateBaitRecommendation(score);
     }
 
-
     function updateWaterClarity() {
       if (!latestWeatherObs) {
         clarityLabel.textContent = "Unknown";
@@ -1697,16 +1538,13 @@
         return;
       }
 
-
       const textDesc = (latestWeatherObs.properties.textDescription || "").toLowerCase();
       const periods = latestForecastPeriods || [];
       const today = periods[0] || {};
       const detailed = (today.detailedForecast || "").toLowerCase();
 
-
       let clarity = "Clear";
       let note = "Water should be reasonably clear; standard bait works well.";
-
 
       const rainy =
         textDesc.includes("rain") ||
@@ -1719,17 +1557,14 @@
         detailed.includes("fog") ||
         detailed.includes("mist");
 
-
       if (rainy || foggy) {
         clarity = "Stained / Murky";
         note = "Recent rain or fog likely stained the water. Oily baits (bunker, fish) help scent travel.";
       }
 
-
       clarityLabel.textContent = clarity;
       clarityNote.textContent = note;
     }
-
 
     function updateWindComfort() {
       if (!latestWeatherObs) {
@@ -1738,15 +1573,12 @@
         return;
       }
 
-
       const windMps = latestWeatherObs.properties.windSpeed.value;
       const windDir = latestWeatherObs.properties.windDirection.value;
       const windMph = windMps !== null ? windMps * 2.23694 : 0;
 
-
       let comfort = "Comfortable";
       let note = `Wind should feel manageable at ${currentLocation.name}.`;
-
 
       if (windMph > 20) {
         comfort = "Rough";
@@ -1756,7 +1588,6 @@
         note = `Noticeable wind — fine for crabbing, but expect some drift at ${currentLocation.name}.`;
       }
 
-
       if (windDir !== null) {
         if (windMph > 12 && (windDir > 45 && windDir < 135)) {
           note += " East wind can push chop up the bay/creek.";
@@ -1765,18 +1596,15 @@
         }
       }
 
-
       windComfortLabel.textContent = comfort;
       windComfortNote.textContent = note;
     }
-
 
     function updateMoonPhase() {
       const now = new Date();
       const phase = simpleMoonPhase(now);
       let label = "";
       let note = "";
-
 
       switch (phase) {
         case "New":
@@ -1800,12 +1628,10 @@
           note = "Moon phase influence is mild today.";
       }
 
-
       moonPhaseLabel.textContent = label;
       moonNote.textContent = note;
       renderMoonImage(label);
     }
-
 
     // Simple moon phase approximation
     function simpleMoonPhase(date) {
@@ -1820,11 +1646,9 @@
       return "Intermediate";
     }
 
-
     // Vector moon image
     function renderMoonImage(phaseLabel) {
       let svg = "";
-
 
       if (phaseLabel.includes("New")) {
         svg = `
@@ -1856,20 +1680,16 @@
           </svg>`;
       }
 
-
       moonImageContainer.innerHTML = svg;
     }
-
 
     function updateCrabSizeExpectation() {
       const now = new Date();
       const month = now.getMonth() + 1;
       const temp = latestWaterTempF;
 
-
       let label = "Mixed sizes";
       let note = "Expect a mix of shorts and keepers.";
-
 
       if (temp !== null) {
         if (temp >= 70 && (month >= 7 && month <= 9)) {
@@ -1884,21 +1704,17 @@
         }
       }
 
-
       sizeExpectationLabel.textContent = label;
       sizeNote.textContent = note;
     }
-
 
     function updateBaitRecommendation(score) {
       const temp = latestWaterTempF;
       const clarity = clarityLabel.textContent || "Unknown";
 
-
       let primary = "Chicken (necks/legs)";
       let secondary = "Bunker";
       let reason = "Defaulting to chicken as a reliable all-around bait.";
-
 
       if (temp !== null) {
         if (temp > 60 && score >= 60) {
@@ -1916,19 +1732,16 @@
         }
       }
 
-
       if (clarity.includes("Stained") || clarity.includes("Murky")) {
         primary = "Bunker";
         secondary = "Oily fish";
         reason = "Murky water — stronger scent from bunker or oily fish will outperform chicken.";
       }
 
-
       baitPrimary.textContent = primary;
       baitSecondary.textContent = secondary;
       baitReason.textContent = reason;
     }
-
 
     // Sunrise / sunset via sunrise-sunset.org
     async function fetchSunTimes(spot) {
@@ -1937,11 +1750,9 @@
         const data = await fetchJson(url);
         if (data.status !== "OK") throw new Error("Sun API error");
 
-
         const sunrise = new Date(data.results.sunrise);
         const sunset = new Date(data.results.sunset);
         const dayLengthSec = data.results.day_length;
-
 
         sunriseValue.textContent = sunrise.toLocaleTimeString([], {
           hour: "numeric",
@@ -1951,7 +1762,6 @@
           hour: "numeric",
           minute: "2-digit"
         });
-
 
         const hours = Math.floor(dayLengthSec / 3600);
         const minutes = Math.floor((dayLengthSec % 3600) / 60);
@@ -1964,7 +1774,6 @@
         sunNote.textContent = "Could not load sunrise/sunset times.";
       }
     }
-
 
     // Trip tracker (localStorage)
     function loadTrips() {
@@ -1989,7 +1798,6 @@
       updateCrabCounter(trips);
     }
 
-
     function saveTrip(date, keepers, bait) {
       const raw = localStorage.getItem("white_creek_trips");
       const trips = raw ? JSON.parse(raw) : [];
@@ -1997,7 +1805,6 @@
       localStorage.setItem("white_creek_trips", JSON.stringify(trips));
       loadTrips();
     }
-
 
     function updateCrabCounter(trips) {
       if (!trips || !trips.length) {
@@ -2009,20 +1816,16 @@
         return;
       }
 
-
       const total = trips.reduce((sum, t) => sum + (t.keepers || 0), 0);
       const count = trips.length;
       const avg = total / count;
-
 
       let best = trips[0];
       trips.forEach((t) => {
         if (t.keepers > best.keepers) best = t;
       });
 
-
       const last = trips[trips.length - 1];
-
 
       totalKeepersEl.textContent = total.toString();
       tripsLoggedEl.textContent = count.toString();
@@ -2030,7 +1833,6 @@
       bestTripEl.textContent = `${best.keepers} on ${best.date}`;
       lastTripEl.textContent = `${last.keepers} on ${last.date}`;
     }
-
 
     tripForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -2042,15 +1844,12 @@
       tripBait.value = "";
     });
 
-
     // Location toggle handlers
     function setLocation(loc) {
       currentLocation = loc;
 
-
       heroSubtitle.textContent = loc.subtitle;
       heroFooter.textContent = loc.footer;
-
 
       if (loc.id === "white_creek") {
         btnWhiteCreek.classList.add("active");
@@ -2060,20 +1859,16 @@
         btnWhiteCreek.classList.remove("active");
       }
 
-
       scoreValue.textContent = "–";
       scoreLabel.textContent = "Loading new location…";
       scorePill.className = "pill";
       scorePillText.textContent = "Loading conditions";
 
-
       loadSpot();
     }
 
-
     btnWhiteCreek.addEventListener("click", () => setLocation(LOCATIONS.white_creek));
     btnHolts.addEventListener("click", () => setLocation(LOCATIONS.holts_landing));
-
 
     // Main flow
     async function loadSpot() {
@@ -2086,7 +1881,6 @@
       updateCrabbingScore();
       loadTrips();
     }
-
 
     // Initial load
     setLocation(LOCATIONS.white_creek);
