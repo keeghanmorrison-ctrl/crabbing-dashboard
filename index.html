@@ -1027,12 +1027,14 @@ function describeTideTiming(incoming, peaks, troughs, now) {
   const hoursSinceLow  = lastLow  ? (now - lastLow)/3600000   : 99;
 
   let msg;
-  if (hoursSinceHigh < 0.5) msg = "Peak high tide — crabs spread into grass. Expect slower action.";
+  if (hoursSinceHigh < 0.75) msg = "Just crested high — crabs still spread and accessible. Good window.";
   else if (hoursSinceLow < 0.5) msg = "Extreme low — crabs hunkered in deep holes. Slow bite expected.";
   else if (incoming && hoursToHigh < 2) msg = "Strong incoming tide approaching high — prime crabbing window right now.";
-  else if (!incoming && hoursToLow < 1.5) msg = "Approaching low — water starting to slow. Window coming after low turns.";
+  else if (!incoming && hoursSinceHigh <= 2) msg = "Early outgoing after high — crabs funneling back to channels. Excellent window.";
+  else if (!incoming && hoursSinceHigh <= 4) msg = "Mid outgoing — crabs settling into channels. Decent action.";
+  else if (!incoming && hoursToLow < 1.5) msg = "Approaching low — water slowing. Best window coming after tide turns.";
   else if (incoming) msg = "Tide is incoming — water moving, crabs actively feeding. Good time.";
-  else msg = "Tide is outgoing — crabs pulling toward channels. Decent but not peak.";
+  else msg = "Outgoing tide — crabs pulling toward deeper channels.";
 
   tideTimingNote.textContent = msg;
 }
@@ -1223,18 +1225,19 @@ function updateCrabbingScore() {
   let tidePoints = 0, tideReason = "";
   if (nearHigh) {
     // In the high-tide half of the cycle
-    if      (hoursSinceHigh <= 0.75)                           { tidePoints=+5;  tideReason="Slack high tide (just crested)"; }
-    else if (hoursToHigh <= 1)                                 { tidePoints=+20; tideReason="Peak incoming — approaching high"; }
-    else if (hoursToHigh <= 3)                                 { tidePoints=+15; tideReason="Incoming tide — building toward high"; }
-    // "early incoming" — we are past a low, heading toward high but still >3h away
+    if      (hoursToHigh <= 1)                                     { tidePoints=+20; tideReason="Peak incoming — approaching high"; }
+    else if (hoursToHigh <= 3)                                     { tidePoints=+15; tideReason="Incoming tide — building toward high"; }
     else if (hoursSinceLow <= 3 && hoursSinceLow < hoursSinceHigh) { tidePoints=+8;  tideReason="Early incoming (just turned from low)"; }
-    else                                                       { tidePoints=+5;  tideReason="Outgoing tide (mid-cycle)"; }
+    else if (hoursSinceHigh <= 0.75)                               { tidePoints=+8;  tideReason="Slack high — crabs still spread and accessible"; }
+    else if (hoursSinceHigh <= 2)                                  { tidePoints=+15; tideReason="Early outgoing — crabs actively moving to channels"; }
+    else if (hoursSinceHigh <= 4)                                  { tidePoints=+8;  tideReason="Mid outgoing — decent movement, crabs settling"; }
+    else                                                           { tidePoints=+5;  tideReason="Outgoing tide (late cycle)"; }
   } else {
     // In the low-tide half of the cycle
-    if      (hoursSinceLow <= 0.75)  { tidePoints=-8;  tideReason="Slack low tide (worst window)"; }
-    else if (hoursToLow   <= 1)      { tidePoints=-5;  tideReason="Approaching low tide"; }
-    else if (hoursSinceLow <= 3)     { tidePoints=+8;  tideReason="Early incoming (just turned from low)"; }
-    else                             { tidePoints=+3;  tideReason="Outgoing tide (heading to low)"; }
+    if      (hoursSinceLow <= 0.75) { tidePoints=-8;  tideReason="Slack low tide (worst window)"; }
+    else if (hoursToLow   <= 1)     { tidePoints=-5;  tideReason="Approaching low tide"; }
+    else if (hoursSinceLow <= 3)    { tidePoints=+8;  tideReason="Early incoming (just turned from low)"; }
+    else                            { tidePoints=+3;  tideReason="Outgoing tide (heading to low)"; }
   }
   score += tidePoints;
   breakdown.push({ label:tideReason, val:tidePoints });
@@ -1713,7 +1716,9 @@ async function loadSpot() {
 // ─── SERVICE WORKER REGISTRATION ─────────────────────────────────────────────
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js")
+    navigator.serviceWorker.register("/crabbing-dashboard/service-worker.js", {
+      scope: "/crabbing-dashboard/"
+    })
       .then(reg => console.log("SW registered:", reg.scope))
       .catch(err => console.warn("SW registration failed:", err));
   });
