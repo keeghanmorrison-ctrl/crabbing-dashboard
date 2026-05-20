@@ -41,7 +41,7 @@
     }
     body::before {
       content: ""; position: fixed; inset: -20px;
-      background-image: url("https://i.redd.it/oi447d8dyfbf1.jpeg");
+      background-image: url("indian_river_bridge.png");
       background-size: cover; background-position: center top;
       filter: blur(4px) brightness(1.1); z-index: -2;
     }
@@ -61,7 +61,7 @@
     }
     .hero-image {
       flex: 2;
-      background-image: url("https://coastalartbybrent.com/cdn/shop/files/11x14Prints-BlueCrab.jpg?v=1698776561");
+      background-image: url("crab-hero.png");
       background-size: cover; background-position: center; position: relative;
     }
     .hero-image::after {
@@ -788,10 +788,10 @@ async function fetchNwsData(spot) {
     const tempF  = tempC != null ? tempC * 9/5 + 32 : null;
     const obsMph = windMs != null ? windMs * 2.23694 : null;
 
-    tempValue.textContent = tempF != null ? `${tempF.toFixed(0)} u00b0F` : "N/A";
+    tempValue.textContent = tempF != null ? `${tempF.toFixed(0)} °F` : "N/A";
     condValue.textContent = desc;
     windValue.textContent = obsMph != null
-      ? `${obsMph.toFixed(0)} mph${windDir != null ? " @ " + Math.round(windDir) + "u00b0" : ""}`
+      ? `${obsMph.toFixed(0)} mph${windDir != null ? " @ " + Math.round(windDir) + "°" : ""}`
       : "N/A";
 
     // Flag airport ASOS stations (K + 3 letters)
@@ -801,7 +801,7 @@ async function fetchNwsData(spot) {
 
     if (windDir != null) {
       windArrow.style.transform = `rotate(${windDir}deg)`;
-      windDirLabel.textContent  = `Wind from ${Math.round(windDir)}u00b0`;
+      windDirLabel.textContent  = `Wind from ${Math.round(windDir)}°`;
     }
     weatherMeta.textContent = `NWS: ${stn.name} (${stn.stationIdentifier})`;
 
@@ -832,7 +832,7 @@ async function fetchNwsData(spot) {
       if (days[i] && nights[i]) {
         lbl.textContent = days[i].name;
         ico.textContent = iconFromForecast(days[i].shortForecast);
-        tmp.textContent = `${days[i].temperature}u00b0 / ${nights[i].temperature}u00b0`;
+        tmp.textContent = `${days[i].temperature}° / ${nights[i].temperature}°`;
       }
     });
   } catch(err) {
@@ -914,11 +914,17 @@ async function fetchTides(spot) {
   tideList.innerHTML = "<li><span>Loading…</span><span></span></li>";
 
   const now = new Date();
-  // Snap start to the previous whole hour so prediction points fall on :00 boundaries
+  // Snap start to the previous whole hour, end to the next whole hour
+  // so ALL prediction points land on :00 boundaries — past and future
   const start = new Date(now.getTime() - 12*3600000);
   start.setMinutes(0, 0, 0);
-  const end   = new Date(now.getTime() + 12*3600000);
-  end.setMinutes(0, 0, 0);
+  const end = new Date(now.getTime() + 12*3600000);
+  // Round up to next hour if any minutes remain
+  if (end.getMinutes() > 0 || end.getSeconds() > 0) {
+    end.setHours(end.getHours() + 1, 0, 0, 0);
+  } else {
+    end.setMinutes(0, 0, 0);
+  }
 
   const url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
     `?station=${spot.tideStation}&product=predictions&datum=MLLW` +
