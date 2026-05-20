@@ -1044,9 +1044,7 @@ function renderTideChart(predictions) {
   const ctx    = $("tideChart").getContext("2d");
   const now    = new Date();
 
-  // Interpolate the tide height at the exact current moment between the two
-  // surrounding prediction points — so the red dot is always precise, not
-  // snapped to the nearest 6-minute interval.
+  // Interpolate the tide height at the exact current moment
   const times  = predictions.map(p => new Date(p.t.replace(" ","T")));
   const values = predictions.map(p => parseFloat(p.v));
 
@@ -1059,7 +1057,7 @@ function renderTideChart(predictions) {
     }
   }
 
-  // Build the full dataset by inserting the NOW point in chronological order
+  // Insert synthetic NOW point in chronological order
   const allTimes  = [...times];
   const allValues = [...values];
   let nowInsertIdx = allTimes.findIndex(t => t > now);
@@ -1067,14 +1065,22 @@ function renderTideChart(predictions) {
   allTimes.splice(nowInsertIdx, 0, now);
   allValues.splice(nowInsertIdx, 0, nowValue);
 
-  // Labels: clean clock times on the hour, "NOW" for the injected point
+  // Labels: only show :00 and :30 on the x-axis; everything else returns ""
+  // The NOW point always shows "NOW" regardless of its minute
   const labels = allTimes.map((t, i) => {
     if (i === nowInsertIdx) return "NOW";
-    return t.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+    const mins = t.getMinutes();
+    if (mins === 0 || mins === 30) {
+      return t.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+    }
+    return ""; // hide this tick label
   });
 
-  // Red dot only on the NOW point
+  // Red dot only on NOW point
   const dotData = allValues.map((v, i) => i === nowInsertIdx ? v : null);
+
+  // Exact time string for tooltip
+  const nowTimeStr = now.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
 
   if (tideChart) tideChart.destroy();
 
@@ -1102,17 +1108,57 @@ function renderTideChart(predictions) {
           label: "Now",
           data: dotData,
           borderColor: "#ff3b3b", backgroundColor: "#ff3b3b",
-          pointRadius: 9, pointHoverRadius: 11, showLine: false
+          pointRadius: 9, pointHoverRadius: 12, showLine: false
         }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      scales: {
-        x: { ticks: { color:"#6b7a8a", maxTicksLimit:10, maxRotation:0 }, grid: { color:"rgba(0,0,0,0.05)" } },
-        y: { ticks: { color:"#6b7a8a" }, grid: { color:"rgba(0,0,0,0.05)" } }
+      interaction: {
+        mode: "nearest",
+        intersect: true
       },
-      plugins: { legend: { display:false } }
+      scales: {
+        x: {
+          ticks: {
+            color: "#6b7a8a",
+            maxRotation: 0,
+            // Don't skip — let our label logic control what shows
+            autoSkip: false,
+            maxTicksLimit: 100
+          },
+          grid: { color: "rgba(0,0,0,0.05)" }
+        },
+        y: {
+          ticks: { color: "#6b7a8a" },
+          grid: { color: "rgba(0,0,0,0.05)" }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            // Only show tooltip on the red NOW dot (dataset index 1)
+            title: context => {
+              if (context[0]?.datasetIndex === 1) return `Now · ${nowTimeStr}`;
+              return context[0]?.label || "";
+            },
+            label: context => {
+              if (context.datasetIndex === 1) {
+                return `Water depth: ${nowValue.toFixed(2)} ft`;
+              }
+              return `${parseFloat(context.parsed.y).toFixed(2)} ft`;
+            }
+          },
+          filter: item => item.datasetIndex === 1, // only tooltip on NOW dot
+          backgroundColor: "rgba(15,34,53,0.9)",
+          titleColor: "#ff3b3b",
+          bodyColor: "#f0f4f8",
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: false
+        }
+      }
     }
   });
 }
