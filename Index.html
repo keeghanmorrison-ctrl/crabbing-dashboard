@@ -1,0 +1,2095 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>White Creek Crabbing – Conditions Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+  <style>
+    :root {
+      --accent: #1b7fcf;
+      --accent-soft: rgba(27, 127, 207, 0.12);
+      --accent-strong: rgba(27, 127, 207, 0.18);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --card-border: rgba(15, 32, 48, 0.08);
+      --text-main: #102030;
+      --text-muted: #6b7a8a;
+      --bad: #e63946;
+      --ok: #ffb703;
+      --good: #2a9d8f;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      background: #e7f1fb;
+      transition: transform 0.1s linear;
+    }
+
+
+    /* Parallax bridge background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20px;
+      background-image: url("https://i.redd.it/oi447d8dyfbf1.jpeg");
+      background-size: cover;
+      background-position: center top;
+      filter: blur(4px) brightness(1.1);
+      z-index: -2;
+    }
+
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4));
+      z-index: -1;
+    }
+
+
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+
+    /* Hero */
+    .hero {
+      position: relative;
+      border-radius: 28px;
+      overflow: hidden;
+      margin-bottom: 22px;
+      background: #000;
+      min-height: 220px;
+      display: flex;
+      align-items: stretch;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+
+    .hero-image {
+      flex: 2;
+      background-image: url("https://coastalartbybrent.com/cdn/shop/files/11x14Prints-BlueCrab.jpg?v=1698776561");
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+
+    .hero-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.55),
+        rgba(0, 0, 0, 0.15)
+      );
+    }
+
+
+    .hero-content {
+      flex: 3;
+      position: relative;
+      padding: 22px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.2), transparent);
+      color: #f7fbff;
+    }
+
+
+    .hero-title {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: 0.04em;
+    }
+
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin: 0 0 14px;
+    }
+
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(5, 10, 20, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+
+    .tag-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+
+    .hero-footer {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
+
+    /* Floating location toggle */
+    .location-toggle-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: -10px 0 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+
+    .location-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 999px;
+      padding: 4px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(15, 32, 48, 0.08);
+      gap: 4px;
+    }
+
+
+    .location-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+
+    .location-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(27, 127, 207, 0.5);
+    }
+
+
+    /* Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+
+    .grid-full {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+
+    @media (max-width: 900px) {
+      .hero {
+        flex-direction: column;
+      }
+      .hero-image {
+        min-height: 180px;
+      }
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .location-toggle-wrapper {
+        margin-top: -6px;
+      }
+    }
+
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 20px 22px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0f2235;
+    }
+
+
+    .card-title .icon {
+      font-size: 1.2rem;
+    }
+
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+
+    .metric-row span.value {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+
+    .score-main {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-top: 4px;
+    }
+
+
+    .score-value {
+      font-size: 3.1rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #0f2235;
+    }
+
+
+    .score-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 260px;
+    }
+
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(240, 244, 248, 0.9);
+      border: 1px solid rgba(16, 32, 48, 0.12);
+      margin-top: 6px;
+      color: var(--text-main);
+    }
+
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+
+    .pill.good .pill-dot {
+      background: var(--good);
+    }
+    .pill.ok .pill-dot {
+      background: var(--ok);
+    }
+    .pill.bad .pill-dot {
+      background: var(--bad);
+    }
+
+
+    .small {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+
+    .error {
+      color: var(--bad);
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+
+
+    .daily-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 6px 0;
+      font-size: 0.9rem;
+    }
+
+
+    .daily-label {
+      color: var(--text-muted);
+    }
+
+
+    .daily-temp {
+      font-weight: 500;
+    }
+
+
+    .daily-icon {
+      margin-right: 6px;
+    }
+
+
+    .tide-list {
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.9rem;
+    }
+
+
+    .tide-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+
+    .tide-type {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+
+    canvas {
+      max-height: 260px;
+    }
+
+
+    footer {
+      text-align: center;
+      padding: 10px 4px 4px;
+      font-size: 0.75rem;
+      color: #0b1a28;
+      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
+    }
+
+
+    .wind-arrow-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+
+    .wind-arrow {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+
+    .wind-arrow svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease-out;
+      fill: var(--accent);
+    }
+
+
+    .regs-list li {
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+    }
+
+
+    .trip-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+
+    .trip-form input,
+    .trip-form select {
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font-size: 0.8rem;
+    }
+
+
+    .trip-form button {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+
+    .trip-list {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+
+    .trip-list div {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+
+    .crab-counter-metric {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin: 4px 0;
+      color: var(--text-muted);
+    }
+
+
+    .crab-counter-metric span.value {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+
+    .moon-image {
+      width: 64px;
+      height: 64px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-image"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">White Creek Crabbing</h1>
+        <p class="hero-subtitle" id="heroSubtitle">
+          Live conditions, tides, bait, and rules for your dock off Indian River Bay.
+        </p>
+        <div class="hero-tags">
+          <span class="tag">
+            <span class="tag-dot"></span>
+            <span>Auto NWS station</span>
+          </span>
+          <span class="tag">
+            <span class="tag-dot"></span>
+            <span>Indian River Inlet tides</span>
+          </span>
+          <span class="tag">
+            <span class="tag-dot"></span>
+            <span>Blue crab focused</span>
+          </span>
+        </div>
+        <p class="hero-footer" id="heroFooter">
+          Built around your exact spot: 38.5601, -75.0890 · White Creek, Delaware.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- FLOATING LOCATION TOGGLE -->
+    <div class="location-toggle-wrapper">
+      <div class="location-toggle">
+        <button class="location-btn active" id="btnWhiteCreek" data-location="white_creek">
+          White Creek
+        </button>
+        <button class="location-btn" id="btnHolts" data-location="holts_landing">
+          Holts Landing
+        </button>
+      </div>
+    </div>
+
+
+    <!-- TOP GRID: Score + Weather -->
+    <section class="grid">
+      <!-- Crabbing score -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🦀</span>
+                <span>Today’s Crabbing Score</span>
+              </div>
+              <div class="card-subtitle">
+                Wind, weather, tide, water temp, and timing rolled into one gut-check number.
+              </div>
+            </div>
+          </div>
+          <div class="score-main">
+            <div class="score-value" id="scoreValue">–</div>
+            <div class="score-text">
+              <div id="scoreLabel">Waiting for data…</div>
+              <div class="pill" id="scorePill">
+                <span class="pill-dot"></span>
+                <span id="scorePillText">Loading conditions</span>
+              </div>
+              <p class="small" id="bestWindowText">
+                Best crabbing window (incoming tide) will appear here once tide and weather load.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Weather -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🌤️</span>
+                <span>Live Weather</span>
+              </div>
+              <div class="card-subtitle" id="weatherMeta">
+                Using nearest NWS station to your dock.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="metric-row">
+              <span>Air temperature</span>
+              <span class="value" id="tempValue">–</span>
+            </div>
+            <div class="metric-row">
+              <span>Water temperature</span>
+              <span class="value" id="waterTempValue">–</span>
+            </div>
+            <div class="metric-row">
+              <span>Wind</span>
+              <span class="value" id="windValue">–</span>
+            </div>
+            <div class="metric-row">
+              <span>Conditions</span>
+              <span class="value" id="condValue">–</span>
+            </div>
+            <div class="wind-arrow-wrapper">
+              <div class="wind-arrow">
+                <svg id="windArrow" viewBox="0 0 24 24">
+                  <polygon points="12,3 6,15 12,12 18,15" />
+                </svg>
+              </div>
+              <span id="windDirLabel">Wind direction</span>
+            </div>
+            <div class="error" id="weatherError"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- MIDDLE GRID: Outlook + Tides -->
+    <section class="grid">
+      <!-- 3-day outlook -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">📅</span>
+                <span>3‑Day Outlook</span>
+              </div>
+              <div class="card-subtitle">
+                High/low and summary from NWS forecast at your coordinates.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="daily-row">
+              <span class="daily-label" id="day1Label">Today</span>
+              <span>
+                <span class="daily-icon" id="day1Icon">–</span>
+                <span class="daily-temp" id="day1Temps">–</span>
+              </span>
+            </div>
+            <div class="daily-row">
+              <span class="daily-label" id="day2Label">Tomorrow</span>
+              <span>
+                <span class="daily-icon" id="day2Icon">–</span>
+                <span class="daily-temp" id="day2Temps">–</span>
+              </span>
+            </div>
+            <div class="daily-row">
+              <span class="daily-label" id="day3Label">Next Day</span>
+              <span>
+                <span class="daily-icon" id="day3Icon">–</span>
+                <span class="daily-temp" id="day3Temps">–</span>
+              </span>
+            </div>
+            <div class="error" id="outlookError"></div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Simple high/low tides -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🌊</span>
+                <span>Today’s Tide Timing</span>
+              </div>
+              <div class="card-subtitle">
+                High/low from NOAA station 8558690 (Indian River Inlet).
+              </div>
+            </div>
+          </div>
+          <ul class="tide-list" id="tideList">
+            <li><span>Loading tide data…</span><span></span></li>
+          </ul>
+          <p class="small" id="tideTimingNote">
+            Tide timing notes will appear here once predictions load.
+          </p>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- FULL-WIDTH TIDE CHART -->
+    <section class="grid-full">
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">📈</span>
+                <span>Tide Chart (±12h Around Now)</span>
+              </div>
+              <div class="card-subtitle" id="tideMeta">
+                NOAA tide predictions (MLLW) from Indian River Inlet. Glowing red dot marks “now”.
+              </div>
+            </div>
+          </div>
+          <canvas id="tideChart"></canvas>
+          <div class="error" id="tideError"></div>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- BAIT / CLARITY / WIND / SUNRISE -->
+    <section class="grid-3">
+      <!-- Recommended bait -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🎣</span>
+                <span>Recommended Bait</span>
+              </div>
+              <div class="card-subtitle">
+                Based on today’s water temp, tide, and activity.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Primary bait</span>
+            <span class="value" id="baitPrimary">–</span>
+          </div>
+          <div class="metric-row">
+            <span>Backup option</span>
+            <span class="value" id="baitSecondary">–</span>
+          </div>
+          <p class="small" id="baitReason">
+            Bait recommendation will appear here once conditions load.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- Water clarity -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">💧</span>
+                <span>Water Clarity</span>
+              </div>
+              <div class="card-subtitle">
+                Estimated from recent weather and wind.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Clarity</span>
+            <span class="value" id="clarityLabel">–</span>
+          </div>
+          <p class="small" id="clarityNote">
+            Clarity affects how far scent and bait can pull crabs.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- Wind comfort -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🧭</span>
+                <span>Wind Comfort</span>
+              </div>
+              <div class="card-subtitle">
+                How fishable it feels at your dock.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Comfort level</span>
+            <span class="value" id="windComfortLabel">–</span>
+          </div>
+          <p class="small" id="windComfortNote">
+            Uses wind speed and direction relative to the selected spot.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- Sunrise / Sunset -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🌅</span>
+                <span>Sunrise & Sunset</span>
+              </div>
+              <div class="card-subtitle">
+                Daylight window at the selected location.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Sunrise</span>
+            <span class="value" id="sunriseValue">–</span>
+          </div>
+          <div class="metric-row">
+            <span>Sunset</span>
+            <span class="value" id="sunsetValue">–</span>
+          </div>
+          <div class="metric-row">
+            <span>Day length</span>
+            <span class="value" id="dayLengthValue">–</span>
+          </div>
+          <p class="small" id="sunNote">
+            Early morning and late evening often feel best for dock crabbing.
+          </p>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- MOON / SIZE / CRAB COUNTER -->
+    <section class="grid-3">
+      <!-- Moon phase -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🌙</span>
+                <span>Moon & Crab Activity</span>
+              </div>
+              <div class="card-subtitle">
+                Simple moon phase influence on daytime crabbing.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Moon phase</span>
+            <span class="value" id="moonPhaseLabel">–</span>
+          </div>
+          <div id="moonImageContainer" class="moon-image"></div>
+          <p class="small" id="moonNote">
+            Darker nights often mean better daytime movement; bright full moons can spread activity out.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- Crab size expectation -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">📏</span>
+                <span>Crab Size Expectation</span>
+              </div>
+              <div class="card-subtitle">
+                Rough guess based on season and water temp.
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <span>Expected mix</span>
+            <span class="value" id="sizeExpectationLabel">–</span>
+          </div>
+          <p class="small" id="sizeNote">
+            This will never be perfect, but it nudges expectations for keepers vs. shorts.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- Crab counter -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">🧮</span>
+                <span>Crab Counter</span>
+              </div>
+              <div class="card-subtitle">
+                Totals pulled from your logged trips (browser only).
+              </div>
+            </div>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Total keepers</span>
+            <span class="value" id="totalKeepers">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Trips logged</span>
+            <span class="value" id="tripsLogged">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Avg keepers/trip</span>
+            <span class="value" id="avgKeepers">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Best trip</span>
+            <span class="value" id="bestTrip">–</span>
+          </div>
+          <div class="crab-counter-metric">
+            <span>Last trip</span>
+            <span class="value" id="lastTrip">–</span>
+          </div>
+          <p class="small">
+            Add trips below to see this fill in over time.
+          </p>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- TRIP TRACKER -->
+    <section class="grid-full">
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">📓</span>
+                <span>Trip Log</span>
+              </div>
+              <div class="card-subtitle">
+                Quick log stored in your browser only.
+              </div>
+            </div>
+          </div>
+          <form class="trip-form" id="tripForm">
+            <input type="date" id="tripDate" />
+            <input type="number" id="tripKeepers" placeholder="# keepers" min="0" />
+            <select id="tripBait">
+              <option value="">Bait</option>
+              <option>Chicken</option>
+              <option>Bunker</option>
+              <option>Oily fish</option>
+              <option>Clams</option>
+            </select>
+            <button type="submit">Add</button>
+          </form>
+          <div class="trip-list" id="tripList"></div>
+          <p class="small">
+            Use this to see what actually worked on good days.
+          </p>
+        </div>
+      </section>
+    </section>
+
+
+    <!-- REGS -->
+    <section class="grid-full">
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="icon">⚖️</span>
+                <span>Delaware Blue Crab Rules (Recreational)</span>
+              </div>
+              <div class="card-subtitle">
+                Quick reference only — always confirm with DNREC for latest regulations.
+              </div>
+            </div>
+          </div>
+          <ul class="tide-list regs-list">
+            <li><span class="tide-type">MIN SIZE</span><span>5" point‑to‑point</span></li>
+            <li><span class="tide-type">DAILY LIMIT</span><span>1 bushel per person</span></li>
+            <li><span class="tide-type">EGG‑BEARING FEMALES</span><span>Must be released</span></li>
+            <li><span class="tide-type">SEASON</span><span>Open year‑round (recreational)</span></li>
+          </ul>
+          <p class="small">
+            Use this as a reminder, not a legal source. Check DNREC before keeping crabs.
+          </p>
+        </div>
+      </section>
+    </section>
+
+
+    <footer>
+      Built for “should I crab today?” at your White Creek and Holts Landing docks. Tune the logic as you learn the spots.
+    </footer>
+  </div>
+
+
+  <script>
+    // Parallax scroll
+    window.addEventListener("scroll", () => {
+      const offset = window.scrollY * 0.02;
+      document.body.style.transform = `translateY(${offset * -0.5}px)`;
+    });
+
+
+    // Locations
+    const LOCATIONS = {
+      white_creek: {
+        id: "white_creek",
+        name: "White Creek",
+        lat: 38.56009945688984,
+        lon: -75.08900779608682,
+        tideStation: "8558690",
+        subtitle: "Live conditions, tides, bait, and rules for your dock off Indian River Bay.",
+        footer: "Built around your exact spot: 38.5601, -75.0890 · White Creek, Delaware."
+      },
+      holts_landing: {
+        id: "holts_landing",
+        name: "Holts Landing State Park",
+        lat: 38.56955,
+        lon: -75.10390,
+        tideStation: "8558690",
+        subtitle: "Conditions and tides for the crabbing pier at Holts Landing State Park.",
+        footer: "Holts Landing pier: 38.5696, -75.1039 · Indian River Bay, Delaware."
+      }
+    };
+
+
+    let currentLocation = LOCATIONS.white_creek;
+
+
+    // Hero elements
+    const heroSubtitle = document.getElementById("heroSubtitle");
+    const heroFooter = document.getElementById("heroFooter");
+
+
+    // Toggle buttons
+    const btnWhiteCreek = document.getElementById("btnWhiteCreek");
+    const btnHolts = document.getElementById("btnHolts");
+
+
+    // Weather elements
+    const tempValue = document.getElementById("tempValue");
+    const waterTempValue = document.getElementById("waterTempValue");
+    const windValue = document.getElementById("windValue");
+    const condValue = document.getElementById("condValue");
+    const weatherError = document.getElementById("weatherError");
+    const weatherMeta = document.getElementById("weatherMeta");
+    const windArrow = document.getElementById("windArrow");
+    const windDirLabel = document.getElementById("windDirLabel");
+
+
+    // Outlook elements
+    const day1Label = document.getElementById("day1Label");
+    const day1Icon = document.getElementById("day1Icon");
+    const day1Temps = document.getElementById("day1Temps");
+    const day2Label = document.getElementById("day2Label");
+    const day2Icon = document.getElementById("day2Icon");
+    const day2Temps = document.getElementById("day2Temps");
+    const day3Label = document.getElementById("day3Label");
+    const day3Icon = document.getElementById("day3Icon");
+    const day3Temps = document.getElementById("day3Temps");
+    const outlookError = document.getElementById("outlookError");
+
+
+    // Tide elements
+    const tideList = document.getElementById("tideList");
+    const tideError = document.getElementById("tideError");
+    const tideMeta = document.getElementById("tideMeta");
+    const tideTimingNote = document.getElementById("tideTimingNote");
+
+
+    // Score elements
+    const scoreValue = document.getElementById("scoreValue");
+    const scoreLabel = document.getElementById("scoreLabel");
+    const scorePill = document.getElementById("scorePill");
+    const scorePillText = document.getElementById("scorePillText");
+    const bestWindowText = document.getElementById("bestWindowText");
+
+
+    // Bait / clarity / wind comfort / moon / size / sun
+    const baitPrimary = document.getElementById("baitPrimary");
+    const baitSecondary = document.getElementById("baitSecondary");
+    const baitReason = document.getElementById("baitReason");
+    const clarityLabel = document.getElementById("clarityLabel");
+    const clarityNote = document.getElementById("clarityNote");
+    const windComfortLabel = document.getElementById("windComfortLabel");
+    const windComfortNote = document.getElementById("windComfortNote");
+    const moonPhaseLabel = document.getElementById("moonPhaseLabel");
+    const moonNote = document.getElementById("moonNote");
+    const sizeExpectationLabel = document.getElementById("sizeExpectationLabel");
+    const sizeNote = document.getElementById("sizeNote");
+    const moonImageContainer = document.getElementById("moonImageContainer");
+
+
+    const sunriseValue = document.getElementById("sunriseValue");
+    const sunsetValue = document.getElementById("sunsetValue");
+    const dayLengthValue = document.getElementById("dayLengthValue");
+    const sunNote = document.getElementById("sunNote");
+
+
+    // Trip tracker
+    const tripForm = document.getElementById("tripForm");
+    const tripDate = document.getElementById("tripDate");
+    const tripKeepers = document.getElementById("tripKeepers");
+    const tripBait = document.getElementById("tripBait");
+    const tripList = document.getElementById("tripList");
+
+
+    // Crab counter
+    const totalKeepersEl = document.getElementById("totalKeepers");
+    const tripsLoggedEl = document.getElementById("tripsLogged");
+    const avgKeepersEl = document.getElementById("avgKeepers");
+    const bestTripEl = document.getElementById("bestTrip");
+    const lastTripEl = document.getElementById("lastTrip");
+
+
+    let latestWeatherObs = null;
+    let latestTides = [];
+    let tideChart = null;
+    let latestWaterTempF = null;
+    let latestForecastPeriods = [];
+
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Request failed ${res.status} ${res.statusText}`);
+      }
+      return res.json();
+    }
+
+
+    // NWS data: auto station + forecast
+    async function fetchNwsData(spot) {
+      weatherError.textContent = "";
+      outlookError.textContent = "";
+      tempValue.textContent = "–";
+      windValue.textContent = "–";
+      condValue.textContent = "–";
+
+
+      try {
+        const pointsUrl = `https://api.weather.gov/points/${spot.lat},${spot.lon}`;
+        const points = await fetchJson(pointsUrl);
+
+
+        const obsStationsUrl = points.properties.observationStations;
+        const forecastUrl = points.properties.forecast;
+
+
+        const stations = await fetchJson(obsStationsUrl);
+        const firstStation = stations.features[0];
+        const stationId = firstStation.properties.stationIdentifier;
+        const stationName = firstStation.properties.name;
+
+
+        const latestObsUrl = `https://api.weather.gov/stations/${stationId}/observations/latest`;
+        const latestObs = await fetchJson(latestObsUrl);
+        latestWeatherObs = latestObs;
+
+
+        const props = latestObs.properties;
+        const tempC = props.temperature.value;
+        const windMps = props.windSpeed.value;
+        const windDir = props.windDirection.value;
+        const textDesc = props.textDescription || "N/A";
+
+
+        const tempF = tempC !== null ? (tempC * 9) / 5 + 32 : null;
+        const windMph = windMps !== null ? windMps * 2.23694 : null;
+
+
+        tempValue.textContent = tempF !== null ? `${tempF.toFixed(0)} °F` : "N/A";
+        windValue.textContent =
+          windMph !== null && windDir !== null
+            ? `${windMph.toFixed(0)} mph @ ${windDir.toFixed(0)}°`
+            : windMph !== null
+            ? `${windMph.toFixed(0)} mph`
+            : "N/A";
+        condValue.textContent = textDesc;
+
+
+        if (windDir !== null) {
+          windArrow.style.transform = `rotate(${windDir}deg)`;
+          windDirLabel.textContent = `Wind from ${Math.round(windDir)}°`;
+        } else {
+          windDirLabel.textContent = "Wind direction unavailable";
+        }
+
+
+        weatherMeta.textContent = `Nearest NWS station: ${stationName} (${stationId}).`;
+
+
+        const forecast = await fetchJson(forecastUrl);
+        const periods = forecast.properties.periods || [];
+        latestForecastPeriods = periods;
+
+
+        if (periods.length >= 6) {
+          const todayDay = periods[0];
+          const todayNight = periods[1];
+          const tomorrowDay = periods[2];
+          const tomorrowNight = periods[3];
+          const nextDayDay = periods[4];
+          const nextDayNight = periods[5];
+
+
+          const todayHigh = todayDay.temperature;
+          const todayLow = todayNight.temperature;
+          const tomorrowHigh = tomorrowDay.temperature;
+          const tomorrowLow = tomorrowNight.temperature;
+          const nextDayHigh = nextDayDay.temperature;
+          const nextDayLow = nextDayNight.temperature;
+
+
+          day1Label.textContent = todayDay.name;
+          day1Icon.textContent = iconFromShortForecast(todayDay.shortForecast);
+          day1Temps.textContent = `${todayHigh}° / ${todayLow}°`;
+
+
+          day2Label.textContent = tomorrowDay.name;
+          day2Icon.textContent = iconFromShortForecast(tomorrowDay.shortForecast);
+          day2Temps.textContent = `${tomorrowHigh}° / ${tomorrowLow}°`;
+
+
+          day3Label.textContent = nextDayDay.name;
+          day3Icon.textContent = iconFromShortForecast(nextDayDay.shortForecast);
+          day3Temps.textContent = `${nextDayHigh}° / ${nextDayLow}°`;
+        } else {
+          outlookError.textContent = "Not enough forecast data.";
+        }
+      } catch (err) {
+        console.error(err);
+        weatherError.textContent = "Could not load NWS weather: " + err.message;
+        outlookError.textContent = "Could not load forecast.";
+        latestWeatherObs = null;
+      }
+    }
+
+
+    function iconFromShortForecast(text) {
+      if (!text) return "–";
+      const t = text.toLowerCase();
+      if (t.includes("sunny") || t.includes("clear")) return "☀️";
+      if (t.includes("cloud")) return "⛅";
+      if (t.includes("rain") || t.includes("showers")) return "🌧️";
+      if (t.includes("storm") || t.includes("thunder")) return "⛈️";
+      if (t.includes("snow")) return "❄️";
+      if (t.includes("fog") || t.includes("mist")) return "🌫️";
+      return "🌡️";
+    }
+
+
+    // NOAA water temperature
+    async function fetchWaterTemp(spot) {
+      try {
+        const url =
+          "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
+          `?station=${spot.tideStation}` +
+          "&product=water_temperature" +
+          "&units=english" +
+          "&time_zone=lst_ldt" +
+          "&format=json" +
+          "&date=latest";
+
+
+        const data = await fetchJson(url);
+        if (data && data.data && data.data.length > 0) {
+          const latest = data.data[data.data.length - 1];
+          const tempF = parseFloat(latest.v);
+          latestWaterTempF = tempF;
+          waterTempValue.textContent = `${tempF.toFixed(1)} °F`;
+        } else {
+          latestWaterTempF = null;
+          waterTempValue.textContent = "N/A";
+        }
+      } catch (err) {
+        console.error(err);
+        latestWaterTempF = null;
+        waterTempValue.textContent = "N/A";
+      }
+    }
+
+
+    // NOAA tides: ±12h around now
+    async function fetchTides(spot) {
+      tideError.textContent = "";
+      tideList.innerHTML = "<li><span>Loading tide data…</span><span></span></li>";
+
+
+      const now = new Date();
+      const start = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+      const yyyy = start.getFullYear();
+      const mm = String(start.getMonth() + 1).padStart(2, "0");
+      const dd = String(start.getDate()).padStart(2, "0");
+      const hh = String(start.getHours()).padStart(2, "0");
+      const min = String(start.getMinutes()).padStart(2, "0");
+      const beginStr = `${yyyy}${mm}${dd} ${hh}:${min}`;
+
+
+      const url =
+        "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
+        `?station=${spot.tideStation}` +
+        "&product=predictions" +
+        "&datum=MLLW" +
+        "&time_zone=lst_ldt" +
+        "&units=english" +
+        "&interval=6" +
+        "&range=24" +
+        `&begin_date=${encodeURIComponent(beginStr)}` +
+        "&format=json";
+
+
+      try {
+        const data = await fetchJson(url);
+
+
+        if (!data.predictions) throw new Error("No tide predictions returned");
+
+
+        latestTides = data.predictions;
+        renderSimpleHighLow(latestTides);
+        renderTideChart(latestTides);
+        tideMeta.textContent = `NOAA tide predictions (MLLW) from station ${spot.tideStation} near Indian River Inlet.`;
+      } catch (err) {
+        console.error(err);
+        tideError.textContent = "Could not load tide predictions: " + err.message;
+        latestTides = [];
+        if (tideChart) tideChart.destroy();
+      }
+    }
+
+
+    function renderSimpleHighLow(predictions) {
+      if (!predictions || predictions.length === 0) {
+        tideList.innerHTML = "<li><span>No tide data.</span><span></span></li>";
+        return;
+      }
+
+
+      let maxP = predictions[0];
+      let minP = predictions[0];
+
+
+      predictions.forEach((p) => {
+        const v = parseFloat(p.v);
+        if (v > parseFloat(maxP.v)) maxP = p;
+        if (v < parseFloat(minP.v)) minP = p;
+      });
+
+
+      const highTime = new Date(maxP.t.replace(" ", "T"));
+      const lowTime = new Date(minP.t.replace(" ", "T"));
+
+
+      const highStr = highTime.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+      const lowStr = lowTime.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+
+      tideList.innerHTML = "";
+
+
+      const highLi = document.createElement("li");
+      highLi.innerHTML = `<span class="tide-type">HIGH</span><span>${highStr} · ${parseFloat(
+        maxP.v
+      ).toFixed(2)} ft</span>`;
+      tideList.appendChild(highLi);
+
+
+      const lowLi = document.createElement("li");
+      lowLi.innerHTML = `<span class="tide-type">LOW</span><span>${lowStr} · ${parseFloat(
+        minP.v
+      ).toFixed(2)} ft</span>`;
+      tideList.appendChild(lowLi);
+
+
+      computeBestWindow(predictions, highTime, lowTime);
+      describeTideTiming(highTime, lowTime);
+    }
+
+
+    function renderTideChart(predictions) {
+      const ctx = document.getElementById("tideChart").getContext("2d");
+
+
+      const times = predictions.map((p) => new Date(p.t.replace(" ", "T")));
+      const labels = times.map((d) =>
+        d.toLocaleTimeString([], { hour: "numeric" })
+      );
+      const values = predictions.map((p) => parseFloat(p.v));
+
+
+      const now = new Date();
+      let closestIndex = 0;
+      let smallestDiff = Infinity;
+      times.forEach((t, i) => {
+        const diff = Math.abs(t - now);
+        if (diff < smallestDiff) {
+          smallestDiff = diff;
+          closestIndex = i;
+        }
+      });
+
+
+      const currentDotData = values.map((v, i) => (i === closestIndex ? v : null));
+
+
+      if (tideChart) tideChart.destroy();
+
+
+      tideChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Tide height (ft)",
+              data: values,
+              borderColor: "#1b7fcf",
+              backgroundColor: "rgba(27, 127, 207, 0.18)",
+              tension: 0.4,
+              fill: true,
+              pointRadius: 0
+            },
+            {
+              label: "Now",
+              data: currentDotData,
+              borderColor: "#ff3b3b",
+              backgroundColor: "#ff3b3b",
+              pointRadius: 8,
+              pointHoverRadius: 10,
+              showLine: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              ticks: {
+                color: "#6b7a8a",
+                maxTicksLimit: 8
+              },
+              grid: {
+                color: "rgba(0,0,0,0.05)"
+              }
+            },
+            y: {
+              ticks: {
+                color: "#6b7a8a"
+              },
+              grid: {
+                color: "rgba(0,0,0,0.05)"
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+
+    // Best crabbing window: incoming tide toward next high
+    function computeBestWindow(predictions, highTime, lowTime) {
+      if (!predictions || predictions.length === 0) return;
+
+
+      const windowStart = new Date(highTime.getTime() - 2 * 60 * 60 * 1000);
+      const windowEnd = new Date(highTime.getTime() + 1 * 60 * 60 * 1000);
+
+
+      const startStr = windowStart.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+      const endStr = windowEnd.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+
+      bestWindowText.textContent = `Best crabbing window (incoming tide): ${startStr} – ${endStr}`;
+    }
+
+
+    // Tide timing description with corrected logic
+    function describeTideTiming(highTime, lowTime) {
+      const now = new Date();
+      const diffHigh = (highTime - now) / (1000 * 60 * 60);
+      const diffLow = (lowTime - now) / (1000 * 60 * 60);
+
+
+      let msg = "";
+
+
+      const absHigh = Math.abs(diffHigh);
+      const absLow = Math.abs(diffLow);
+
+
+      if (absHigh < 0.5) {
+        msg = "Peak high tide — crabs spread out into grass. Expect slower action.";
+      } else if (absLow < 0.5) {
+        msg = "Extreme low tide — crabs hunkered in deeper holes. Slow bite expected.";
+      } else if (absHigh < 2) {
+        msg = "Within a couple hours of high tide — good incoming/just-after-high window.";
+      } else if (absLow < 2) {
+        msg = "Within a couple hours of low tide — good window as water starts moving.";
+      } else {
+        msg = "Mid-tide — movement is decent; watch current strength for comfort.";
+      }
+
+
+      tideTimingNote.textContent = msg;
+    }
+
+
+    // Smarter crabbing score
+    function updateCrabbingScore() {
+      if (!latestWeatherObs || latestTides.length === 0) {
+        scoreValue.textContent = "–";
+        scoreLabel.textContent = "Waiting for both weather and tide data…";
+        scorePill.className = "pill";
+        scorePillText.textContent = "Incomplete data";
+        return;
+      }
+
+
+      const props = latestWeatherObs.properties;
+      const windMps = props.windSpeed.value;
+      const windMph = windMps !== null ? windMps * 2.23694 : 0;
+      const textDesc = (props.textDescription || "").toLowerCase();
+
+
+      let score = 70;
+
+
+      // Wind penalty
+      if (windMph > 25) score -= 30;
+      else if (windMph > 18) score -= 18;
+      else if (windMph > 12) score -= 10;
+
+
+      // Rain/storm penalty
+      const isRainy =
+        textDesc.includes("rain") ||
+        textDesc.includes("showers") ||
+        textDesc.includes("storm");
+      if (isRainy) score -= 15;
+
+
+      // Water temp bonus
+      if (latestWaterTempF !== null) {
+        if (latestWaterTempF >= 65) score += 10;
+        else if (latestWaterTempF >= 55) score += 5;
+        else if (latestWaterTempF < 50) score -= 10;
+      }
+
+
+      // Tide proximity bonus
+      const now = new Date();
+      let tideBonus = 0;
+      latestTides.forEach((p) => {
+        const t = new Date(p.t.replace(" ", "T"));
+        const diffHours = Math.abs(t - now) / (1000 * 60 * 60);
+        if (diffHours < 2) {
+          tideBonus = 10;
+        }
+      });
+      score += tideBonus;
+
+
+      // Time of day bonus
+      const hour = now.getHours();
+      if ((hour >= 5 && hour <= 9) || (hour >= 17 && hour <= 20)) {
+        score += 5;
+      }
+
+
+      score = Math.max(0, Math.min(100, score));
+
+
+      scoreValue.textContent = score.toFixed(0);
+
+
+      let label = "";
+      let pillClass = "pill";
+      if (score >= 75) {
+        label = `Looks like a pretty solid crabbing window at ${currentLocation.name}.`;
+        pillClass += " good";
+        scorePillText.textContent = "Good conditions";
+      } else if (score >= 50) {
+        label = `Decent at ${currentLocation.name}, but check wind, tide strength, and bait choice.`;
+        pillClass += " ok";
+        scorePillText.textContent = "Mixed conditions";
+      } else {
+        label = `Might be tough today at ${currentLocation.name} — wind, water temp, or tide timing not ideal.`;
+        pillClass += " bad";
+        scorePillText.textContent = "Challenging conditions";
+      }
+
+
+      scoreLabel.textContent = label;
+      scorePill.className = pillClass;
+
+
+      updateDerivedCards(score);
+    }
+
+
+    // Derived cards
+    function updateDerivedCards(score) {
+      updateWaterClarity();
+      updateWindComfort();
+      updateMoonPhase();
+      updateCrabSizeExpectation();
+      updateBaitRecommendation(score);
+    }
+
+
+    function updateWaterClarity() {
+      if (!latestWeatherObs) {
+        clarityLabel.textContent = "Unknown";
+        clarityNote.textContent = "Waiting for weather data.";
+        return;
+      }
+
+
+      const textDesc = (latestWeatherObs.properties.textDescription || "").toLowerCase();
+      const periods = latestForecastPeriods || [];
+      const today = periods[0] || {};
+      const detailed = (today.detailedForecast || "").toLowerCase();
+
+
+      let clarity = "Clear";
+      let note = "Water should be reasonably clear; standard bait works well.";
+
+
+      const rainy =
+        textDesc.includes("rain") ||
+        textDesc.includes("showers") ||
+        detailed.includes("rain") ||
+        detailed.includes("showers");
+      const foggy =
+        textDesc.includes("fog") ||
+        textDesc.includes("mist") ||
+        detailed.includes("fog") ||
+        detailed.includes("mist");
+
+
+      if (rainy || foggy) {
+        clarity = "Stained / Murky";
+        note = "Recent rain or fog likely stained the water. Oily baits (bunker, fish) help scent travel.";
+      }
+
+
+      clarityLabel.textContent = clarity;
+      clarityNote.textContent = note;
+    }
+
+
+    function updateWindComfort() {
+      if (!latestWeatherObs) {
+        windComfortLabel.textContent = "Unknown";
+        windComfortNote.textContent = "Waiting for wind data.";
+        return;
+      }
+
+
+      const windMps = latestWeatherObs.properties.windSpeed.value;
+      const windDir = latestWeatherObs.properties.windDirection.value;
+      const windMph = windMps !== null ? windMps * 2.23694 : 0;
+
+
+      let comfort = "Comfortable";
+      let note = `Wind should feel manageable at ${currentLocation.name}.`;
+
+
+      if (windMph > 20) {
+        comfort = "Rough";
+        note = `Strong wind — lines and traps may swing, and surface chop could be annoying at ${currentLocation.name}.`;
+      } else if (windMph > 12) {
+        comfort = "Breezy";
+        note = `Noticeable wind — fine for crabbing, but expect some drift at ${currentLocation.name}.`;
+      }
+
+
+      if (windDir !== null) {
+        if (windMph > 12 && (windDir > 45 && windDir < 135)) {
+          note += " East wind can push chop up the bay/creek.";
+        } else if (windMph > 12 && (windDir > 225 && windDir < 315)) {
+          note += " West wind is more sheltered in parts of the system.";
+        }
+      }
+
+
+      windComfortLabel.textContent = comfort;
+      windComfortNote.textContent = note;
+    }
+
+
+    function updateMoonPhase() {
+      const now = new Date();
+      const phase = simpleMoonPhase(now);
+      let label = "";
+      let note = "";
+
+
+      switch (phase) {
+        case "New":
+          label = "New Moon";
+          note = "Dark nights — crabs often move more during the day. Good for daytime crabbing.";
+          break;
+        case "First Quarter":
+          label = "First Quarter";
+          note = "Balanced light — no strong effect, but tides can feel a bit stronger.";
+          break;
+        case "Full":
+          label = "Full Moon";
+          note = "Bright nights — some activity spreads into night; daytime bite can feel softer.";
+          break;
+        case "Last Quarter":
+          label = "Last Quarter";
+          note = "Similar to first quarter — moderate influence on tides and movement.";
+          break;
+        default:
+          label = "Intermediate";
+          note = "Moon phase influence is mild today.";
+      }
+
+
+      moonPhaseLabel.textContent = label;
+      moonNote.textContent = note;
+      renderMoonImage(label);
+    }
+
+
+    // Simple moon phase approximation
+    function simpleMoonPhase(date) {
+      const lp = 2551443;
+      const now = date.getTime() / 1000;
+      const new_moon = 592500;
+      const phase = ((now - new_moon) % lp) / lp;
+      if (phase < 0.03 || phase > 0.97) return "New";
+      if (phase < 0.28) return "First Quarter";
+      if (phase < 0.53) return "Full";
+      if (phase < 0.78) return "Last Quarter";
+      return "Intermediate";
+    }
+
+
+    // Vector moon image
+    function renderMoonImage(phaseLabel) {
+      let svg = "";
+
+
+      if (phaseLabel.includes("New")) {
+        svg = `
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#0f2235"/>
+          </svg>`;
+      } else if (phaseLabel.includes("Full")) {
+        svg = `
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#f5f5f5"/>
+          </svg>`;
+      } else if (phaseLabel.includes("First Quarter")) {
+        svg = `
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#0f2235"/>
+            <path d="M50 22 A28 28 0 0 1 50 78 Z" fill="#f5f5f5"/>
+          </svg>`;
+      } else if (phaseLabel.includes("Last Quarter")) {
+        svg = `
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#0f2235"/>
+            <path d="M50 22 A28 28 0 0 0 50 78 Z" fill="#f5f5f5"/>
+          </svg>`;
+      } else {
+        svg = `
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#0f2235"/>
+            <path d="M50 22 A28 28 0 0 1 50 78 Z" fill="#d9d9d9"/>
+          </svg>`;
+      }
+
+
+      moonImageContainer.innerHTML = svg;
+    }
+
+
+    function updateCrabSizeExpectation() {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const temp = latestWaterTempF;
+
+
+      let label = "Mixed sizes";
+      let note = "Expect a mix of shorts and keepers.";
+
+
+      if (temp !== null) {
+        if (temp >= 70 && (month >= 7 && month <= 9)) {
+          label = "Good chance of keepers";
+          note = "Warm water in peak season — better odds of legal crabs.";
+        } else if (temp < 60 && month <= 5) {
+          label = "Mostly smalls";
+          note = "Cooler water early in the season — more shorts than keepers.";
+        } else if (temp >= 65 && month >= 9) {
+          label = "Mixed, with some bigger crabs";
+          note = "Late season with decent temps — some heavier crabs around.";
+        }
+      }
+
+
+      sizeExpectationLabel.textContent = label;
+      sizeNote.textContent = note;
+    }
+
+
+    function updateBaitRecommendation(score) {
+      const temp = latestWaterTempF;
+      const clarity = clarityLabel.textContent || "Unknown";
+
+
+      let primary = "Chicken (necks/legs)";
+      let secondary = "Bunker";
+      let reason = "Defaulting to chicken as a reliable all-around bait.";
+
+
+      if (temp !== null) {
+        if (temp > 60 && score >= 60) {
+          primary = "Chicken (necks/legs)";
+          secondary = "Clams";
+          reason = "Warm water and decent activity — chicken holds scent and clams can tempt bigger crabs.";
+        } else if (temp >= 50 && temp <= 65 && score < 60) {
+          primary = "Bunker";
+          secondary = "Oily fish (mackerel/bluefish)";
+          reason = "Cooler water or lower activity — oily bunker helps pull crabs in.";
+        } else if (temp < 55) {
+          primary = "Oily fish (mackerel/bluefish)";
+          secondary = "Bunker";
+          reason = "Colder water — strong scent from oily fish helps wake up sluggish crabs.";
+        }
+      }
+
+
+      if (clarity.includes("Stained") || clarity.includes("Murky")) {
+        primary = "Bunker";
+        secondary = "Oily fish";
+        reason = "Murky water — stronger scent from bunker or oily fish will outperform chicken.";
+      }
+
+
+      baitPrimary.textContent = primary;
+      baitSecondary.textContent = secondary;
+      baitReason.textContent = reason;
+    }
+
+
+    // Sunrise / sunset via sunrise-sunset.org
+    async function fetchSunTimes(spot) {
+      try {
+        const url = `https://api.sunrise-sunset.org/json?lat=${spot.lat}&lng=${spot.lon}&formatted=0`;
+        const data = await fetchJson(url);
+        if (data.status !== "OK") throw new Error("Sun API error");
+
+
+        const sunrise = new Date(data.results.sunrise);
+        const sunset = new Date(data.results.sunset);
+        const dayLengthSec = data.results.day_length;
+
+
+        sunriseValue.textContent = sunrise.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        });
+        sunsetValue.textContent = sunset.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        });
+
+
+        const hours = Math.floor(dayLengthSec / 3600);
+        const minutes = Math.floor((dayLengthSec % 3600) / 60);
+        dayLengthValue.textContent = `${hours}h ${minutes}m`;
+      } catch (err) {
+        console.error(err);
+        sunriseValue.textContent = "N/A";
+        sunsetValue.textContent = "N/A";
+        dayLengthValue.textContent = "N/A";
+        sunNote.textContent = "Could not load sunrise/sunset times.";
+      }
+    }
+
+
+    // Trip tracker (localStorage)
+    function loadTrips() {
+      const raw = localStorage.getItem("white_creek_trips");
+      if (!raw) {
+        tripList.textContent = "No trips logged yet.";
+        updateCrabCounter([]);
+        return;
+      }
+      const trips = JSON.parse(raw);
+      if (!trips.length) {
+        tripList.textContent = "No trips logged yet.";
+        updateCrabCounter([]);
+        return;
+      }
+      tripList.innerHTML = "";
+      trips.slice(-20).reverse().forEach((t) => {
+        const div = document.createElement("div");
+        div.textContent = `${t.date}: ${t.keepers} keepers on ${t.bait}`;
+        tripList.appendChild(div);
+      });
+      updateCrabCounter(trips);
+    }
+
+
+    function saveTrip(date, keepers, bait) {
+      const raw = localStorage.getItem("white_creek_trips");
+      const trips = raw ? JSON.parse(raw) : [];
+      trips.push({ date, keepers, bait });
+      localStorage.setItem("white_creek_trips", JSON.stringify(trips));
+      loadTrips();
+    }
+
+
+    function updateCrabCounter(trips) {
+      if (!trips || !trips.length) {
+        totalKeepersEl.textContent = "0";
+        tripsLoggedEl.textContent = "0";
+        avgKeepersEl.textContent = "0";
+        bestTripEl.textContent = "–";
+        lastTripEl.textContent = "–";
+        return;
+      }
+
+
+      const total = trips.reduce((sum, t) => sum + (t.keepers || 0), 0);
+      const count = trips.length;
+      const avg = total / count;
+
+
+      let best = trips[0];
+      trips.forEach((t) => {
+        if (t.keepers > best.keepers) best = t;
+      });
+
+
+      const last = trips[trips.length - 1];
+
+
+      totalKeepersEl.textContent = total.toString();
+      tripsLoggedEl.textContent = count.toString();
+      avgKeepersEl.textContent = avg.toFixed(1);
+      bestTripEl.textContent = `${best.keepers} on ${best.date}`;
+      lastTripEl.textContent = `${last.keepers} on ${last.date}`;
+    }
+
+
+    tripForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const d = tripDate.value || new Date().toISOString().slice(0, 10);
+      const k = parseInt(tripKeepers.value || "0", 10);
+      const b = tripBait.value || "Unknown";
+      saveTrip(d, k, b);
+      tripKeepers.value = "";
+      tripBait.value = "";
+    });
+
+
+    // Location toggle handlers
+    function setLocation(loc) {
+      currentLocation = loc;
+
+
+      heroSubtitle.textContent = loc.subtitle;
+      heroFooter.textContent = loc.footer;
+
+
+      if (loc.id === "white_creek") {
+        btnWhiteCreek.classList.add("active");
+        btnHolts.classList.remove("active");
+      } else {
+        btnHolts.classList.add("active");
+        btnWhiteCreek.classList.remove("active");
+      }
+
+
+      scoreValue.textContent = "–";
+      scoreLabel.textContent = "Loading new location…";
+      scorePill.className = "pill";
+      scorePillText.textContent = "Loading conditions";
+
+
+      loadSpot();
+    }
+
+
+    btnWhiteCreek.addEventListener("click", () => setLocation(LOCATIONS.white_creek));
+    btnHolts.addEventListener("click", () => setLocation(LOCATIONS.holts_landing));
+
+
+    // Main flow
+    async function loadSpot() {
+      await Promise.all([
+        fetchNwsData(currentLocation),
+        fetchTides(currentLocation),
+        fetchWaterTemp(currentLocation),
+        fetchSunTimes(currentLocation)
+      ]);
+      updateCrabbingScore();
+      loadTrips();
+    }
+
+
+    // Initial load
+    setLocation(LOCATIONS.white_creek);
+  </script>
+</body>
+</html>
